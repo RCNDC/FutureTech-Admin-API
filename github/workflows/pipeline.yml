@@ -3,7 +3,7 @@ name: Node.js Test and Deploy to VPS
 on:
 push:
 branches:
-- main # This workflow runs on pushes to the 'main' branch.
+- dev # This workflow runs on pushes to the 'main' branch.
 
 jobs:
 test_and_deploy:
@@ -35,7 +35,7 @@ steps:
       key: ${{ secrets.SSH_PRIVATE_KEY }}
       # A list of commands to run on the VPS to pull code and restart the application.
       script: |
-        cd /var/www/your-app-directory # Change this to your application's path on the VPS
+        source /home/habeshgo/nodevenv/domains/api.futuretech.habesharunway.com/10/bin/activate && cd /home/habeshgo/domains/api.futuretech.habesharunway.com
         git pull origin main
-        npm install --production
-        pm2 restart your-app-name # Replace with your app's PM2 process name
+        npm install --development
+        
