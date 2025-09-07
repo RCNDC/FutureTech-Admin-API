@@ -1,0 +1,41 @@
+name: Node.js Test and Deploy to VPS
+
+on:
+push:
+branches:
+- main # This workflow runs on pushes to the 'main' branch.
+
+jobs:
+test_and_deploy:
+runs-on: ubuntu-latest
+
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
+
+  - name: Set up Node.js
+    uses: actions/setup-node@v4
+    with:
+      node-version: '20' # Specify your Node.js version here
+
+  - name: Install dependencies
+    run: npm install
+
+  - name: Run tests
+    run: npm test
+
+  - name: Deploy to VPS via SSH
+    uses: appleboy/ssh-action@v1.0.3
+    with:
+      # Your VPS host address. This should be stored as a GitHub Secret.
+      host: ${{ secrets.VPS_HOST }} 
+      # Your SSH username.
+      username: ${{ secrets.VPS_USERNAME }}
+      # The SSH private key for authentication. This should also be a Secret.
+      key: ${{ secrets.SSH_PRIVATE_KEY }}
+      # A list of commands to run on the VPS to pull code and restart the application.
+      script: |
+        cd /var/www/your-app-directory # Change this to your application's path on the VPS
+        git pull origin main
+        npm install --production
+        pm2 restart your-app-name # Replace with your app's PM2 process name
