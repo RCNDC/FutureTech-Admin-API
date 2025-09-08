@@ -4,7 +4,6 @@
   "description": "api to handle event related data",
   "main": "dist/index.js",
   "scripts": {
-    "test": "npm test",
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
@@ -18,12 +17,15 @@
     "@types/node": "^24.3.1",
     "@typescript-eslint/eslint-plugin": "^8.42.0",
     "@typescript-eslint/parser": "^8.42.0",
-    "eslint": "^9.35.0",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.32.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },
   "dependencies": {
     "dotenv": "^17.2.2",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "winston": "^3.17.0"
   }
 }

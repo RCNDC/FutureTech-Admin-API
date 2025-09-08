@@ -1,0 +1,12 @@
+{
+      "extends": "airbnb-base",
+      "env": {
+        "node": true,
+        "es2021": true
+      },
+      "rules": {
+        // You can override or add specific rules here if needed
+        "import/no-unresolved": "off",
+        "import/extensions": "off"
+      }
+    }
