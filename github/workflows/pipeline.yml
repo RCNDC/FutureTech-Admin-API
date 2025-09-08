@@ -35,7 +35,7 @@ steps:
       key: ${{ secrets.SSH_PRIVATE_KEY }}
       # A list of commands to run on the VPS to pull code and restart the application.
       script: |
-        source /home/habeshgo/nodevenv/domains/api.futuretech.habesharunway.com/10/bin/activate && cd /home/habeshgo/domains/api.futuretech.habesharunway.com
-        git pull origin main
-        npm install --development
+        source /home/habeshgo/nodevenv/domains/api.futuretech.habesharunway.com/10/bin/activate && cd /home/habeshgo/domains/api.futuretech.habesharunway.com/FutureTech-Admin-API/
+        git pull origin dev
+        npm install --production
         
