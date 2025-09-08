@@ -29,8 +29,11 @@ jobs:
         host: ${{ secrets.VPS_HOST }} 
       # Your SSH username.
         username: ${{ secrets.VPS_USERNAME }}
+
       # The SSH private key for authentication. This should also be a Secret.
         key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
       # A list of commands to run on the VPS to pull code and restart the application.
         script: |
           source /home/habeshgo/nodevenv/domains/api.futuretech.habesharunway.com/10/bin/activate && cd /home/habeshgo/domains/api.futuretech.habesharunway.com/FutureTech-Admin-API/
