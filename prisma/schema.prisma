@@ -971,7 +971,7 @@ model wpjm_wpo_404_detector {
 }
 
 model dashboard_user {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @db.VarChar(255)
   email     String   @unique(map: "uq_userdashboard") @db.VarChar(255)
   password  String   @db.VarChar(255)
   createdAt DateTime @default(now()) @db.DateTime(0)
