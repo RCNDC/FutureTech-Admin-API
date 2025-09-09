@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
 import { SignupDto } from "../types/signupdto";
+import { LoginDto } from "../types/logindto";
 
 export class AuthenticationController {
     private authService;
@@ -9,13 +10,32 @@ export class AuthenticationController {
     }
 
     async signUp(req: Request<SignupDto>, response: Response) {
-        
+
         try {
             if (!req.body) {
                 throw new Error('Credentials not provided');
             }
             const signupDto: SignupDto = req.body;
             const tokens = await this.authService.signup(signupDto);
+            response.cookie('refreshToken', tokens.refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production', // Set to true in production
+                sameSite: 'strict', // Adjust based on your requirements
+                maxAge: process.env.REFRESH_TOKEN_EXPIRY ? parseInt(process.env.REFRESH_TOKEN_EXPIRY) * 1000 : 7 * 24 * 60 * 60 * 1000 // Default to 7 days
+            });
+            response.status(201).json({ accessToken: tokens.accessToken });
+        } catch (err) {
+            response.status(400).json({ message: (err as Error).message });
+        }
+    }
+    async logIn(req: Request<LoginDto>, response: Response) {
+
+        try {
+            if (!req.body) {
+                throw new Error('Credentials not provided');
+            }
+            const signupDto: LoginDto = req.body;
+            const tokens = await this.authService.login(signupDto);
             response.cookie('refreshToken', tokens.refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production', // Set to true in production
