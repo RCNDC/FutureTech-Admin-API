@@ -971,13 +971,28 @@ model wpjm_wpo_404_detector {
 }
 
 model dashboard_user {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @db.VarChar(255)
   email     String   @unique(map: "uq_userdashboard") @db.VarChar(255)
   password  String   @db.VarChar(255)
   createdAt DateTime @default(now()) @db.DateTime(0)
   updatedAt DateTime @default(now()) @db.DateTime(0)
   isLocked  Int      @default(0)
   isNew     Int      @default(1)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model ticket_db {
+  Id               String   @db.VarChar(50)
+  Name             String   @db.VarChar(50)
+  Description      String   @db.VarChar(50)
+  Ticket_Type      String   @map("Ticket Type") @db.VarChar(50)
+  Event_Start_Date DateTime @map("Event Start Date") @db.DateTime(0)
+  Event_End_Date   DateTime @map("Event End Date") @db.DateTime(0)
+  Created_By       String   @map("Created By") @db.VarChar(50)
+  Created_Date     DateTime @default(now()) @map("Created Date") @db.DateTime(6)
+  Updated_Date     DateTime @default(now()) @map("Updated Date") @db.DateTime(6)
+
+  @@ignore
 }
 
 enum wpjm_blpwp_stats_action {
