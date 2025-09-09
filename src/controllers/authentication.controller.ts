@@ -9,6 +9,7 @@ export class AuthenticationController {
     }
 
     async signUp(req: Request<SignupDto>, response: Response) {
+        
         try {
             if (!req.body) {
                 throw new Error('Credentials not provided');
