@@ -2,10 +2,11 @@ import { SignupDto } from "../types/signupdto";
 import logger from "../util/logger";
 import { JwtService } from "./jwt.service";
 import { db } from "../util/db";
-import type { dashboard_user } from "../generated/prisma";
-import { v4 } from "uuid";
+import type { dashboard_user } from "@prisma/client";
+import { generateId } from "../util/generateId";
 import {hashSync, compareSync, genSaltSync} from 'bcrypt'
 import { AuthTokens } from "../types/authtokens";
+import { LoginDto } from "../types/logindto";
 
 export class AuthService{
     private jwtService: JwtService;
@@ -14,13 +15,13 @@ export class AuthService{
     }
 
     async signup(signupDto: SignupDto): Promise<AuthTokens>{
-        // Here you would normally handle user registration logic
+        logger.info('Started signup process for email:' + signupDto.email);
         if(!signupDto.email || !signupDto.password){
             logger.error('Email and password are required');
             throw new Error('Email and password are required');
         }
         const newUser: dashboard_user = {
-            id: v4(),
+            id: await generateId(),
             email: signupDto.email,
             password: hashSync(signupDto.password, genSaltSync(10)),
             createdAt: new Date(),
@@ -30,7 +31,7 @@ export class AuthService{
         }
         try{
             const userCreated = await db.dashboard_user.create({data: newUser});
-
+            logger.info('New user created with email' + signupDto.email);
             const accessToken =  this.jwtService.sign({userId: userCreated.id, email: userCreated.email});
             const refreshToken =  this.jwtService.sign({userId: userCreated.id, email: userCreated.email});
             return {accessToken, refreshToken};
@@ -40,5 +41,41 @@ export class AuthService{
             throw new Error('Error creating user');
         }
 
+    }
+    async login(loginDto: LoginDto): Promise<AuthTokens>{
+        logger.info('Started login process for email:' + loginDto.email);
+
+        if(!loginDto.email || !loginDto.password){
+            logger.error('Email and password are required');
+            throw new Error('Email and password are required');
+        }
+        try{
+            const user = await db.dashboard_user.findUnique({
+                where:{
+                    email: loginDto.email,
+                }
+            });
+            if(!user){
+                logger.error('User not found with email: '+ loginDto.email);
+                throw new Error('Invalid email or password');
+            }
+            if(user.isLocked){
+                logger.error('User account is locked for email: '+ loginDto.email);
+                throw new Error('User account is locked');
+            }
+            const passwordMatch = compareSync(loginDto.password, user.password);
+            if(!passwordMatch){
+                logger.error('Invalid password for email: '+ loginDto.email);
+                throw new Error('Invalid email or password');
+            }
+            logger.info('user login with email ' + loginDto.email);
+            const accessToken = this.jwtService.sign({userId: user.id, email: user.email});
+            const refreshToken = this.jwtService.sign({userId: user.id, email: user.email});
+            return {accessToken, refreshToken};
+
+        } catch(err){
+            logger.error('Error finding user: '+ err +' with email: '+ loginDto.email);
+            throw new Error('Error finding user');
+        }
     }
 }

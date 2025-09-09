@@ -11,7 +11,7 @@ const AuthAPIKey = (req:Request, res:Response, next:NextFunction)=>{
     if(apiKey && apiKey === validApiKey){
         next();
     }else{
-        
+        logger.warn('Unauthorized access attempt with invalid API key');
         res.status(401).json({message: 'Unauthorized'});
     }
 }
