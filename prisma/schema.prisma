@@ -1,0 +1,1017 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model wpjm_actionscheduler_actions {
+  action_id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  hook                 String
+  status               String    @db.VarChar(20)
+  scheduled_date_gmt   DateTime? @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  scheduled_date_local DateTime? @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  priority             Int       @default(10) @db.UnsignedTinyInt
+  args                 String?
+  schedule             String?   @db.LongText
+  group_id             BigInt    @default(0) @db.UnsignedBigInt
+  attempts             Int       @default(0)
+  last_attempt_gmt     DateTime? @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  last_attempt_local   DateTime? @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  claim_id             BigInt    @default(0) @db.UnsignedBigInt
+  extended_args        String?   @db.VarChar(8000)
+
+  @@index([args], map: "args")
+  @@index([claim_id, status, scheduled_date_gmt], map: "claim_id_status_scheduled_date_gmt")
+  @@index([group_id], map: "group_id")
+  @@index([hook(length: 163), status, scheduled_date_gmt], map: "hook_status_scheduled_date_gmt")
+  @@index([last_attempt_gmt], map: "last_attempt_gmt")
+  @@index([scheduled_date_gmt], map: "scheduled_date_gmt")
+  @@index([status, scheduled_date_gmt], map: "status_scheduled_date_gmt")
+}
+
+model wpjm_actionscheduler_claims {
+  claim_id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  date_created_gmt DateTime? @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+
+  @@index([date_created_gmt], map: "date_created_gmt")
+}
+
+model wpjm_actionscheduler_groups {
+  group_id BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  slug     String @db.VarChar(255)
+
+  @@index([slug(length: 191)], map: "slug")
+}
+
+model wpjm_actionscheduler_logs {
+  log_id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  action_id      BigInt    @db.UnsignedBigInt
+  message        String    @db.Text
+  log_date_gmt   DateTime? @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  log_date_local DateTime? @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+
+  @@index([action_id], map: "action_id")
+  @@index([log_date_gmt], map: "log_date_gmt")
+}
+
+model wpjm_addonlibrary_addons {
+  id          BigInt  @id @default(autoincrement())
+  title       String? @db.VarChar(255)
+  name        String? @db.VarChar(128)
+  alias       String? @db.VarChar(128)
+  addontype   String? @db.VarChar(128)
+  description String? @db.Text
+  ordering    Int
+  templates   String? @db.MediumText
+  config      String? @db.MediumText
+  catid       Int?
+  is_active   Int?    @db.TinyInt
+  test_slot1  String? @db.Text
+  test_slot2  String? @db.Text
+  test_slot3  String? @db.Text
+}
+
+model wpjm_addonlibrary_categories {
+  id        Int     @id @default(autoincrement())
+  title     String  @db.VarChar(255)
+  alias     String? @db.VarChar(255)
+  ordering  Int
+  params    String  @db.Text
+  type      String? @db.TinyText
+  parent_id Int?
+}
+
+model wpjm_betterlinkmeta {
+  meta_id    BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  link_id    BigInt @default(0) @db.UnsignedBigInt
+  meta_key   String @default("") @db.VarChar(255)
+  meta_value String @default("") @db.LongText
+
+  @@index([link_id], map: "link_id")
+  @@index([meta_key], map: "meta_key")
+}
+
+model wpjm_betterlinks {
+  ID                        BigInt                      @id @default(autoincrement()) @db.UnsignedBigInt
+  link_author               BigInt                      @default(0) @db.UnsignedBigInt
+  link_date                 DateTime                    @default(now()) @db.DateTime(0)
+  link_date_gmt             DateTime                    @default(now()) @db.DateTime(0)
+  link_title                String                      @db.Text
+  link_slug                 String                      @default("") @db.VarChar(200)
+  link_note                 String                      @db.Text
+  link_status               String                      @default("publish") @db.VarChar(20)
+  nofollow                  String?                     @db.VarChar(10)
+  sponsored                 String?                     @db.VarChar(10)
+  track_me                  String?                     @db.VarChar(10)
+  param_forwarding          String?                     @db.VarChar(10)
+  param_struct              String?                     @db.VarChar(255)
+  redirect_type             String?                     @default("307") @db.VarChar(255)
+  target_url                String?                     @db.Text
+  short_url                 String?                     @db.VarChar(255)
+  link_order                Int?                        @default(0) @db.TinyInt
+  link_modified             DateTime                    @default(now()) @db.DateTime(0)
+  link_modified_gmt         DateTime                    @default(now()) @db.DateTime(0)
+  wildcards                 Boolean                     @default(false)
+  expire                    String?                     @db.Text
+  dynamic_redirect          String?                     @db.Text
+  favorite                  String?                     @db.VarChar(255)
+  uncloaked                 String?                     @default("") @db.VarChar(10)
+  wpjm_betterlinks_password wpjm_betterlinks_password[]
+
+  @@index([link_author], map: "link_author")
+  @@index([link_order], map: "link_order")
+  @@index([link_slug(length: 191)], map: "link_slug")
+  @@index([link_status, link_date, ID], map: "type_status_date")
+}
+
+model wpjm_betterlinks_clicks {
+  ID                  BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  link_id             BigInt
+  ip                  String?  @db.VarChar(255)
+  browser             String?  @db.VarChar(255)
+  os                  String?  @db.VarChar(255)
+  device              String?  @db.VarChar(20)
+  brand_name          String?  @db.VarChar(20)
+  model               String?  @db.VarChar(20)
+  bot_name            String?  @db.VarChar(20)
+  browser_type        String?  @db.VarChar(20)
+  os_version          String?  @db.VarChar(20)
+  browser_version     String?  @db.VarChar(20)
+  language            String?  @db.VarChar(10)
+  query_params        String?  @db.Text
+  referer             String?  @db.VarChar(255)
+  host                String?  @db.VarChar(255)
+  uri                 String?  @db.VarChar(255)
+  click_count         Int      @default(0) @db.TinyInt
+  visitor_id          String?  @db.VarChar(25)
+  click_order         Int?     @default(0) @db.TinyInt
+  created_at          DateTime @default(now()) @db.DateTime(0)
+  created_at_gmt      DateTime @default(now()) @db.DateTime(0)
+  rotation_target_url String?  @db.VarChar(255)
+
+  @@index([click_order], map: "click_order")
+  @@index([created_at], map: "created_at_idx")
+  @@index([ip], map: "ip")
+  @@index([link_id], map: "link_id")
+}
+
+model wpjm_betterlinks_password {
+  id               Int              @id @default(autoincrement())
+  link_id          BigInt           @db.UnsignedBigInt
+  password         String?          @db.VarChar(255)
+  status           Boolean?
+  allow_contact    Boolean?         @default(false)
+  wpjm_betterlinks wpjm_betterlinks @relation(fields: [link_id], references: [ID], onDelete: Cascade, onUpdate: Restrict, map: "wpjm_betterlinks_password_ibfk_1")
+
+  @@index([link_id], map: "link_id")
+}
+
+model wpjm_betterlinks_terms {
+  ID         BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  term_name  String @db.Text
+  term_slug  String @default("") @db.VarChar(200)
+  term_type  String @db.VarChar(15)
+  term_order Int?   @default(0) @db.TinyInt
+
+  @@index([term_order], map: "term_order")
+  @@index([term_slug(length: 191)], map: "term_slug")
+  @@index([term_type], map: "term_type")
+}
+
+model wpjm_betterlinks_terms_relationships {
+  ID      BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  term_id BigInt? @default(0)
+  link_id BigInt? @default(0)
+
+  @@index([link_id], map: "link_id")
+  @@index([term_id], map: "term_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model wpjm_blpwp_links {
+  id_link     Int     @id @default(autoincrement()) @db.UnsignedInt
+  id_post     Int     @db.UnsignedInt
+  de_url      String  @db.VarChar(1024)
+  hover       Int
+  click       Int
+  error       Int     @db.TinyInt
+  fl_internal Boolean @default(false)
+  de_domain   String  @default("") @db.VarChar(150)
+  de_rel      String  @default("") @db.VarChar(50)
+}
+
+model wpjm_blpwp_stats {
+  cd_link Int
+  thedate DateTime                @db.Date
+  action  wpjm_blpwp_stats_action
+  count   Int
+
+  @@unique([cd_link, thedate, action], map: "cd_link")
+}
+
+model wpjm_commentmeta {
+  meta_id    BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  comment_id BigInt  @default(0) @db.UnsignedBigInt
+  meta_key   String? @db.VarChar(255)
+  meta_value String? @db.LongText
+
+  @@index([comment_id], map: "comment_id")
+  @@index([meta_key(length: 191)], map: "meta_key")
+}
+
+model wpjm_comments {
+  comment_ID           BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  comment_post_ID      BigInt   @default(0) @db.UnsignedBigInt
+  comment_author       String   @db.TinyText
+  comment_author_email String   @default("") @db.VarChar(100)
+  comment_author_url   String   @default("") @db.VarChar(200)
+  comment_author_IP    String   @default("") @db.VarChar(100)
+  comment_date         DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  comment_date_gmt     DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  comment_content      String   @db.Text
+  comment_karma        Int      @default(0)
+  comment_approved     String   @default("1") @db.VarChar(20)
+  comment_agent        String   @default("") @db.VarChar(255)
+  comment_type         String   @default("comment") @db.VarChar(20)
+  comment_parent       BigInt   @default(0) @db.UnsignedBigInt
+  user_id              BigInt   @default(0) @db.UnsignedBigInt
+
+  @@index([comment_approved, comment_date_gmt], map: "comment_approved_date_gmt")
+  @@index([comment_author_email(length: 10)], map: "comment_author_email")
+  @@index([comment_date_gmt], map: "comment_date_gmt")
+  @@index([comment_parent], map: "comment_parent")
+  @@index([comment_post_ID], map: "comment_post_ID")
+}
+
+model wpjm_cookieadmin_consents {
+  id             BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  consent_id     String  @unique(map: "consent_id") @db.VarChar(128)
+  user_ip        Bytes?  @db.VarBinary(16)
+  consent_time   Int
+  country        String? @db.VarChar(150)
+  browser        String? @db.Text
+  domain         String? @db.VarChar(255)
+  consent_status String  @db.VarChar(50)
+}
+
+model wpjm_cookieadmin_cookies {
+  id             Int       @id @default(autoincrement())
+  cookie_name    String    @db.VarChar(100)
+  category       String?   @db.VarChar(50)
+  description    String?   @db.VarChar(500)
+  domain         String    @db.VarChar(255)
+  path           String?   @default("/") @db.VarChar(255)
+  expires        DateTime? @db.DateTime(0)
+  max_age        Int?
+  samesite       String?   @db.VarChar(10)
+  secure         Boolean   @default(false)
+  httponly       Boolean   @default(false)
+  raw_name       String?   @db.VarChar(255)
+  edited         Boolean?  @default(false)
+  patterns       String    @default("[]") @db.VarChar(255)
+  scan_timestamp Int?      @default(0)
+}
+
+model wpjm_duplicator_packages {
+  id      BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  name    String   @db.VarChar(250)
+  hash    String   @db.VarChar(50)
+  status  Int
+  created DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  owner   String   @db.VarChar(60)
+  package String   @db.LongText
+
+  @@index([hash], map: "hash")
+}
+
+model wpjm_e_events {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  event_data String?  @db.Text
+  created_at DateTime @db.DateTime(0)
+
+  @@index([created_at], map: "created_at_index")
+}
+
+model wpjm_eb_form_settings {
+  id           Int      @id @default(autoincrement())
+  block_id     String   @unique(map: "block_id") @db.VarChar(24)
+  title        String   @db.Text
+  fields       String   @db.Text
+  form_options String   @db.Text
+  settings     String   @db.Text
+  created_by   Int
+  updated_at   DateTime @db.DateTime(0)
+}
+
+model wpjm_frmt_form_entry {
+  entry_id     BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  entry_type   String
+  draft_id     String?  @db.VarChar(12)
+  form_id      BigInt   @db.UnsignedBigInt
+  is_spam      Boolean  @default(false)
+  date_created DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+
+  @@index([form_id], map: "entry_form_id")
+  @@index([is_spam], map: "entry_is_spam")
+  @@index([entry_type], map: "entry_type")
+}
+
+model wpjm_frmt_form_entry_meta {
+  meta_id      BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  entry_id     BigInt   @db.UnsignedBigInt
+  meta_key     String?
+  meta_value   String?  @db.LongText
+  date_created DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  date_updated DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+
+  @@index([entry_id], map: "meta_entry_id")
+  @@index([meta_key], map: "meta_key")
+  @@index([entry_id, meta_key], map: "meta_key_object")
+}
+
+model wpjm_frmt_form_reports {
+  report_id    BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  report_value String   @db.LongText
+  status       String   @db.VarChar(200)
+  date_created DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  date_updated DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+}
+
+model wpjm_frmt_form_views {
+  view_id      BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  form_id      BigInt   @db.UnsignedBigInt
+  page_id      BigInt   @db.UnsignedBigInt
+  ip           String?
+  count        Int      @default(1) @db.UnsignedMediumInt
+  date_created DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  date_updated DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+
+  @@index([form_id], map: "view_form_id")
+  @@index([form_id, view_id], map: "view_form_object")
+  @@index([form_id, view_id, ip], map: "view_form_object_ip")
+  @@index([ip], map: "view_ip")
+}
+
+model wpjm_imagify_files {
+  file_id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  folder_id          BigInt   @default(0) @db.UnsignedBigInt
+  file_date          DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  path               String   @unique(map: "path") @default("")
+  hash               String   @default("") @db.VarChar(32)
+  mime_type          String   @default("") @db.VarChar(100)
+  modified           Boolean  @default(false)
+  width              Int      @default(0) @db.UnsignedSmallInt
+  height             Int      @default(0) @db.UnsignedSmallInt
+  original_size      Int      @default(0) @db.UnsignedInt
+  optimized_size     Int?     @db.UnsignedInt
+  percent            Int?     @db.UnsignedSmallInt
+  optimization_level Boolean?
+  status             String?  @db.VarChar(20)
+  error              String?  @db.VarChar(255)
+  data               String?  @db.LongText
+
+  @@index([folder_id], map: "folder_id")
+  @@index([modified], map: "modified")
+  @@index([optimization_level], map: "optimization_level")
+  @@index([status], map: "status")
+}
+
+model wpjm_imagify_folders {
+  folder_id BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  path      String  @unique(map: "path") @default("")
+  active    Boolean @default(false)
+
+  @@index([active], map: "active")
+}
+
+model wpjm_links {
+  link_id          BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  link_url         String   @default("") @db.VarChar(255)
+  link_name        String   @default("") @db.VarChar(255)
+  link_image       String   @default("") @db.VarChar(255)
+  link_target      String   @default("") @db.VarChar(25)
+  link_description String   @default("") @db.VarChar(255)
+  link_visible     String   @default("Y") @db.VarChar(20)
+  link_owner       BigInt   @default(1) @db.UnsignedBigInt
+  link_rating      Int      @default(0)
+  link_updated     DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  link_rel         String   @default("") @db.VarChar(255)
+  link_notes       String   @db.MediumText
+  link_rss         String   @default("") @db.VarChar(255)
+
+  @@index([link_visible], map: "link_visible")
+}
+
+model wpjm_loginizer_logs {
+  username String @default("") @db.VarChar(255)
+  time     Int    @default(0)
+  count    Int    @default(0)
+  lockout  Int    @default(0)
+  ip       String @unique(map: "ip") @default("") @db.VarChar(255)
+  url      String @default("") @db.VarChar(255)
+}
+
+model wpjm_options {
+  option_id    BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  option_name  String @unique(map: "option_name") @default("")
+  option_value String @db.LongText
+  autoload     String @default("yes") @db.VarChar(20)
+
+  @@index([autoload], map: "autoload")
+}
+
+model wpjm_postmeta {
+  meta_id    BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  post_id    BigInt  @default(0) @db.UnsignedBigInt
+  meta_key   String? @db.VarChar(255)
+  meta_value String? @db.LongText
+
+  @@index([meta_key(length: 191)], map: "meta_key")
+  @@index([post_id], map: "post_id")
+}
+
+model wpjm_posts {
+  ID                    BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  post_author           BigInt   @default(0) @db.UnsignedBigInt
+  post_date             DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  post_date_gmt         DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  post_content          String   @db.LongText
+  post_title            String   @db.Text
+  post_excerpt          String   @db.Text
+  post_status           String   @default("publish") @db.VarChar(20)
+  comment_status        String   @default("open") @db.VarChar(20)
+  ping_status           String   @default("open") @db.VarChar(20)
+  post_password         String   @default("") @db.VarChar(255)
+  post_name             String   @default("") @db.VarChar(200)
+  to_ping               String   @db.Text
+  pinged                String   @db.Text
+  post_modified         DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  post_modified_gmt     DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  post_content_filtered String   @db.LongText
+  post_parent           BigInt   @default(0) @db.UnsignedBigInt
+  guid                  String   @default("") @db.VarChar(255)
+  menu_order            Int      @default(0)
+  post_type             String   @default("post") @db.VarChar(20)
+  post_mime_type        String   @default("") @db.VarChar(100)
+  comment_count         BigInt   @default(0)
+
+  @@index([post_author], map: "post_author")
+  @@index([post_name(length: 191)], map: "post_name")
+  @@index([post_parent], map: "post_parent")
+  @@index([post_type, post_status, post_date, ID], map: "type_status_date")
+}
+
+model wpjm_seopress_content_analysis {
+  id                  BigInt    @id @default(autoincrement())
+  post_id             BigInt?
+  title               String?   @db.LongText
+  description         String?   @db.LongText
+  og_title            String?   @db.LongText
+  og_description      String?   @db.LongText
+  og_image            String?   @db.LongText
+  og_url              String?   @db.LongText
+  og_site_name        String?   @db.LongText
+  twitter_title       String?   @db.LongText
+  twitter_description String?   @db.LongText
+  twitter_image       String?   @db.LongText
+  twitter_image_src   String?   @db.LongText
+  canonical           String?   @db.LongText
+  h1                  String?   @db.LongText
+  h2                  String?   @db.LongText
+  h3                  String?   @db.LongText
+  images              String?   @db.LongText
+  meta_robots         String?   @db.LongText
+  meta_google         String?   @db.LongText
+  links_no_follow     String?   @db.LongText
+  outbound_links      String?   @db.LongText
+  internal_links      String?   @db.LongText
+  json_schemas        String?   @db.LongText
+  keywords            String?   @db.Text
+  permalink           String?   @db.Text
+  score               String?   @db.Text
+  analysis_date       DateTime? @db.DateTime(0)
+
+  @@index([post_id], map: "idx_post_id")
+}
+
+model wpjm_snippets {
+  id          BigInt   @id @default(autoincrement())
+  name        String   @db.TinyText
+  description String   @db.Text
+  code        String   @db.LongText
+  tags        String   @db.LongText
+  scope       String   @default("global") @db.VarChar(15)
+  priority    Int      @default(10) @db.SmallInt
+  active      Boolean  @default(false)
+  modified    DateTime @default(now()) @db.DateTime(0)
+  revision    BigInt   @default(1)
+  cloud_id    String?  @db.VarChar(255)
+
+  @@index([active], map: "active")
+  @@index([scope], map: "scope")
+}
+
+model wpjm_term_relationships {
+  object_id        BigInt @default(0) @db.UnsignedBigInt
+  term_taxonomy_id BigInt @default(0) @db.UnsignedBigInt
+  term_order       Int    @default(0)
+
+  @@id([object_id, term_taxonomy_id])
+  @@index([term_taxonomy_id], map: "term_taxonomy_id")
+}
+
+model wpjm_term_taxonomy {
+  term_taxonomy_id BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  term_id          BigInt @default(0) @db.UnsignedBigInt
+  taxonomy         String @default("") @db.VarChar(32)
+  description      String @db.LongText
+  parent           BigInt @default(0) @db.UnsignedBigInt
+  count            BigInt @default(0)
+
+  @@unique([term_id, taxonomy], map: "term_id_taxonomy")
+  @@index([taxonomy], map: "taxonomy")
+}
+
+model wpjm_termmeta {
+  meta_id    BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  term_id    BigInt  @default(0) @db.UnsignedBigInt
+  meta_key   String? @db.VarChar(255)
+  meta_value String? @db.LongText
+
+  @@index([meta_key(length: 191)], map: "meta_key")
+  @@index([term_id], map: "term_id")
+}
+
+model wpjm_terms {
+  term_id    BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String @default("") @db.VarChar(200)
+  slug       String @default("") @db.VarChar(200)
+  term_group BigInt @default(0)
+
+  @@index([name(length: 191)], map: "name")
+  @@index([slug(length: 191)], map: "slug")
+}
+
+model wpjm_tm_taskmeta {
+  meta_id    BigInt  @id @default(autoincrement())
+  task_id    BigInt  @default(0)
+  meta_key   String? @db.VarChar(255)
+  meta_value String? @db.LongText
+
+  @@index([meta_key(length: 191)], map: "meta_key")
+  @@index([task_id], map: "task_id")
+}
+
+model wpjm_tm_tasks {
+  id               Int      @id @default(autoincrement())
+  user_id          BigInt
+  type             String   @db.VarChar(300)
+  class_identifier String?  @default("0") @db.VarChar(300)
+  attempts         Int?     @default(0)
+  description      String?  @db.VarChar(300)
+  time_created     DateTime @default(now()) @db.Timestamp(0)
+  last_locked_at   BigInt?  @default(0)
+  status           String?  @db.VarChar(300)
+
+  @@index([user_id], map: "user_id")
+}
+
+model wpjm_usermeta {
+  umeta_id   BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt  @default(0) @db.UnsignedBigInt
+  meta_key   String? @db.VarChar(255)
+  meta_value String? @db.LongText
+
+  @@index([meta_key(length: 191)], map: "meta_key")
+  @@index([user_id], map: "user_id")
+}
+
+model wpjm_users {
+  ID                  BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  user_login          String   @default("") @db.VarChar(60)
+  user_pass           String   @default("") @db.VarChar(255)
+  user_nicename       String   @default("") @db.VarChar(50)
+  user_email          String   @default("") @db.VarChar(100)
+  user_url            String   @default("") @db.VarChar(100)
+  user_registered     DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  user_activation_key String   @default("") @db.VarChar(255)
+  user_status         Int      @default(0)
+  display_name        String   @default("") @db.VarChar(250)
+
+  @@index([user_email], map: "user_email")
+  @@index([user_login], map: "user_login_key")
+  @@index([user_nicename], map: "user_nicename")
+}
+
+model wpjm_wfauditevents {
+  id              BigInt                   @id @default(autoincrement()) @db.UnsignedBigInt
+  type            String                   @default("") @db.VarChar(255)
+  data            String                   @db.Text
+  event_time      Float
+  request_id      BigInt                   @db.UnsignedBigInt
+  state           wpjm_wfauditevents_state @default(new)
+  state_timestamp DateTime                 @default(now()) @db.Timestamp(0)
+}
+
+model wpjm_wfblockediplog {
+  IP          Bytes  @default(dbgenerated("('\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')")) @db.Binary(16)
+  countryCode String @db.VarChar(2)
+  blockCount  Int    @default(0) @db.UnsignedInt
+  unixday     Int    @db.UnsignedInt
+  blockType   String @default("generic") @db.VarChar(50)
+
+  @@id([IP, unixday, blockType])
+}
+
+model wpjm_wfblocks7 {
+  id          BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  type        Int     @default(0) @db.UnsignedInt
+  IP          Bytes   @default(dbgenerated("('\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')")) @db.Binary(16)
+  blockedTime BigInt
+  reason      String  @db.VarChar(255)
+  lastAttempt Int?    @default(0) @db.UnsignedInt
+  blockedHits Int?    @default(0) @db.UnsignedInt
+  expiration  BigInt  @default(0) @db.UnsignedBigInt
+  parameters  String? @db.Text
+
+  @@index([IP], map: "IP")
+  @@index([expiration], map: "expiration")
+  @@index([type], map: "type")
+}
+
+model wpjm_wfconfig {
+  name     String                 @id @db.VarChar(100)
+  val      Bytes?
+  autoload wpjm_wfconfig_autoload @default(yes)
+}
+
+model wpjm_wfcrawlers {
+  IP         Bytes   @default(dbgenerated("('\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')")) @db.Binary(16)
+  patternSig Bytes   @db.Binary(16)
+  status     String  @db.Char(8)
+  lastUpdate Int     @db.UnsignedInt
+  PTR        String? @default("") @db.VarChar(255)
+
+  @@id([IP, patternSig])
+}
+
+model wpjm_wffilechanges {
+  filenameHash String @id @db.Char(64)
+  file         String @db.VarChar(1000)
+  md5          String @db.Char(32)
+}
+
+model wpjm_wffilemods {
+  filenameMD5        Bytes  @id @db.Binary(16)
+  filename           String @db.VarChar(1000)
+  real_path          String @db.Text
+  knownFile          Int    @db.UnsignedTinyInt
+  oldMD5             Bytes  @default(dbgenerated("('\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')")) @db.Binary(16)
+  newMD5             Bytes  @db.Binary(16)
+  SHAC               Bytes  @default(dbgenerated("('\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')")) @db.Binary(32)
+  stoppedOnSignature String @default("") @db.VarChar(255)
+  stoppedOnPosition  Int    @default(0) @db.UnsignedInt
+  isSafeFile         String @default("?") @db.VarChar(1)
+}
+
+model wpjm_wfhits {
+  id                Int     @id @default(autoincrement()) @db.UnsignedInt
+  attackLogTime     Float
+  ctime             Float
+  IP                Bytes?  @db.Binary(16)
+  jsRun             Int?    @default(0) @db.TinyInt
+  statusCode        Int     @default(200)
+  isGoogle          Int     @db.TinyInt
+  userID            Int     @db.UnsignedInt
+  newVisit          Int     @db.UnsignedTinyInt
+  URL               String? @db.Text
+  referer           String? @db.Text
+  UA                String? @db.Text
+  action            String  @default("") @db.VarChar(64)
+  actionDescription String? @db.Text
+  actionData        String? @db.Text
+
+  @@index([attackLogTime], map: "attackLogTime")
+  @@index([ctime], map: "k1")
+  @@index([IP, ctime], map: "k2")
+}
+
+model wpjm_wfhoover {
+  id      Int     @id @default(autoincrement()) @db.UnsignedInt
+  owner   String? @db.Text
+  host    String? @db.Text
+  path    String? @db.Text
+  hostKey Bytes?  @db.VarBinary(124)
+
+  @@index([hostKey], map: "k2")
+}
+
+model wpjm_wfissues {
+  id          Int     @id @default(autoincrement()) @db.UnsignedInt
+  time        Int     @db.UnsignedInt
+  lastUpdated Int     @db.UnsignedInt
+  status      String  @db.VarChar(10)
+  type        String  @db.VarChar(20)
+  severity    Int     @db.UnsignedTinyInt
+  ignoreP     String  @db.Char(32)
+  ignoreC     String  @db.Char(32)
+  shortMsg    String  @db.VarChar(255)
+  longMsg     String? @db.Text
+  data        String? @db.Text
+
+  @@index([ignoreC], map: "ignoreC")
+  @@index([ignoreP], map: "ignoreP")
+  @@index([lastUpdated], map: "lastUpdated")
+  @@index([status], map: "status")
+}
+
+model wpjm_wfknownfilelist {
+  id             Int    @id @default(autoincrement()) @db.UnsignedInt
+  path           String @db.Text
+  wordpress_path String @db.Text
+}
+
+model wpjm_wflivetraffichuman {
+  IP         Bytes @default(dbgenerated("('\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')")) @db.Binary(16)
+  identifier Bytes @default(dbgenerated("('\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')")) @db.Binary(32)
+  expiration Int   @db.UnsignedInt
+
+  @@id([IP, identifier])
+  @@index([expiration], map: "expiration")
+}
+
+model wpjm_wflocs {
+  IP          Bytes   @id @default(dbgenerated("('\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')")) @db.Binary(16)
+  ctime       Int     @db.UnsignedInt
+  failed      Int     @db.UnsignedTinyInt
+  city        String? @default("") @db.VarChar(255)
+  region      String? @default("") @db.VarChar(255)
+  countryName String? @default("") @db.VarChar(255)
+  countryCode String? @default("") @db.Char(2)
+  lat         Float?  @default(0.0000000) @db.Float
+  lon         Float?  @default(0.0000000) @db.Float
+}
+
+model wpjm_wflogins {
+  id       Int     @id @default(autoincrement()) @db.UnsignedInt
+  hitID    Int?
+  ctime    Float
+  fail     Int     @db.UnsignedTinyInt
+  action   String  @db.VarChar(40)
+  username String  @db.VarChar(255)
+  userID   Int     @db.UnsignedInt
+  IP       Bytes?  @db.Binary(16)
+  UA       String? @db.Text
+
+  @@index([hitID], map: "hitID")
+  @@index([IP, fail], map: "k1")
+}
+
+model wpjm_wfls_2fa_secrets {
+  id       Int                        @id @default(autoincrement()) @db.UnsignedInt
+  user_id  BigInt                     @db.UnsignedBigInt
+  secret   Bytes                      @db.TinyBlob
+  recovery Bytes                      @db.Blob
+  ctime    Int                        @db.UnsignedInt
+  vtime    Int                        @db.UnsignedInt
+  mode     wpjm_wfls_2fa_secrets_mode @default(authenticator)
+
+  @@index([user_id], map: "user_id")
+}
+
+model wpjm_wfls_role_counts {
+  serialized_roles    Bytes   @db.VarBinary(255)
+  two_factor_inactive Boolean
+  user_count          BigInt  @default(0) @db.UnsignedBigInt
+
+  @@id([serialized_roles, two_factor_inactive])
+}
+
+model wpjm_wfls_settings {
+  name     String                      @id @default("")
+  value    Bytes?
+  autoload wpjm_wfls_settings_autoload @default(yes)
+}
+
+model wpjm_wfnotifications {
+  id       String @id @default("") @db.VarChar(32)
+  new      Int    @default(1) @db.UnsignedTinyInt
+  category String @db.VarChar(255)
+  priority Int    @default(1000)
+  ctime    Int    @db.UnsignedInt
+  html     String @db.Text
+  links    String @db.Text
+}
+
+model wpjm_wfpendingissues {
+  id          Int     @id @default(autoincrement()) @db.UnsignedInt
+  time        Int     @db.UnsignedInt
+  lastUpdated Int     @db.UnsignedInt
+  status      String  @db.VarChar(10)
+  type        String  @db.VarChar(20)
+  severity    Int     @db.UnsignedTinyInt
+  ignoreP     String  @db.Char(32)
+  ignoreC     String  @db.Char(32)
+  shortMsg    String  @db.VarChar(255)
+  longMsg     String? @db.Text
+  data        String? @db.Text
+
+  @@index([ignoreC], map: "ignoreC")
+  @@index([ignoreP], map: "ignoreP")
+  @@index([lastUpdated], map: "lastUpdated")
+  @@index([status], map: "status")
+}
+
+model wpjm_wfreversecache {
+  IP         Bytes  @id @default(dbgenerated("('\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')")) @db.Binary(16)
+  host       String @db.VarChar(255)
+  lastUpdate Int    @db.UnsignedInt
+}
+
+model wpjm_wfsecurityevents {
+  id              BigInt                      @id @default(autoincrement()) @db.UnsignedBigInt
+  type            String                      @default("") @db.VarChar(255)
+  data            String                      @db.Text
+  event_time      Float
+  state           wpjm_wfsecurityevents_state @default(new)
+  state_timestamp DateTime                    @default(now()) @db.Timestamp(0)
+}
+
+model wpjm_wfsnipcache {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  IP         String   @default("") @db.VarChar(45)
+  expiration DateTime @default(now()) @db.Timestamp(0)
+  body       String   @default("") @db.VarChar(255)
+  count      Int      @default(0) @db.UnsignedInt
+  type       Int      @default(0) @db.UnsignedInt
+
+  @@index([IP], map: "IP")
+  @@index([expiration], map: "expiration")
+  @@index([type], map: "type")
+}
+
+model wpjm_wfstatus {
+  id    BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  ctime Float
+  level Int    @db.UnsignedTinyInt
+  type  String @db.Char(5)
+  msg   String @db.VarChar(1000)
+
+  @@index([ctime], map: "k1")
+  @@index([type], map: "k2")
+}
+
+model wpjm_wftrafficrates {
+  eMin    Int                         @db.UnsignedInt
+  IP      Bytes                       @default(dbgenerated("('\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0')")) @db.Binary(16)
+  hitType wpjm_wftrafficrates_hitType @default(hit)
+  hits    Int                         @db.UnsignedInt
+
+  @@id([eMin, IP, hitType])
+}
+
+model wpjm_wfwaffailures {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  throwable String   @db.Text
+  rule_id   Int?     @db.UnsignedInt
+  timestamp DateTime @default(now()) @db.Timestamp(0)
+}
+
+model wpjm_wpforms_logs {
+  id        BigInt   @id @default(autoincrement())
+  title     String   @db.VarChar(255)
+  message   String   @db.LongText
+  types     String   @db.VarChar(255)
+  create_at DateTime @db.DateTime(0)
+  form_id   BigInt?
+  entry_id  BigInt?
+  user_id   BigInt?
+}
+
+model wpjm_wpforms_payment_meta {
+  id         BigInt  @id @default(autoincrement())
+  payment_id BigInt
+  meta_key   String? @db.VarChar(255)
+  meta_value String? @db.LongText
+
+  @@index([meta_key(length: 191)], map: "meta_key")
+  @@index([meta_value(length: 191)], map: "meta_value")
+  @@index([payment_id], map: "payment_id")
+}
+
+model wpjm_wpforms_payments {
+  id                  BigInt   @id @default(autoincrement())
+  form_id             BigInt
+  status              String   @default("") @db.VarChar(10)
+  subtotal_amount     Decimal  @default(0.00000000) @db.Decimal(26, 8)
+  discount_amount     Decimal  @default(0.00000000) @db.Decimal(26, 8)
+  total_amount        Decimal  @default(0.00000000) @db.Decimal(26, 8)
+  currency            String   @default("") @db.VarChar(3)
+  entry_id            BigInt   @default(0)
+  gateway             String   @default("") @db.VarChar(20)
+  type                String   @default("") @db.VarChar(12)
+  mode                String   @default("") @db.VarChar(4)
+  transaction_id      String   @default("") @db.VarChar(40)
+  customer_id         String   @default("") @db.VarChar(40)
+  subscription_id     String   @default("") @db.VarChar(40)
+  subscription_status String   @default("") @db.VarChar(10)
+  title               String   @default("") @db.VarChar(255)
+  date_created_gmt    DateTime @db.DateTime(0)
+  date_updated_gmt    DateTime @db.DateTime(0)
+  is_published        Boolean  @default(true)
+
+  @@index([customer_id(length: 32)], map: "customer_id")
+  @@index([form_id], map: "form_id")
+  @@index([status(length: 8)], map: "status")
+  @@index([subscription_id(length: 32)], map: "subscription_id")
+  @@index([subscription_status(length: 8)], map: "subscription_status")
+  @@index([title(length: 64)], map: "title")
+  @@index([total_amount], map: "total_amount")
+  @@index([transaction_id(length: 32)], map: "transaction_id")
+  @@index([type(length: 8)], map: "type")
+}
+
+model wpjm_wpforms_tasks_meta {
+  id     BigInt   @id @default(autoincrement())
+  action String   @db.VarChar(255)
+  data   String   @db.LongText
+  date   DateTime @db.DateTime(0)
+}
+
+model wpjm_wpmailsmtp_debug_events {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  content    String?  @db.Text
+  initiator  String?  @db.Text
+  event_type Int      @default(0) @db.UnsignedTinyInt
+  created_at DateTime @default(now()) @db.Timestamp(0)
+}
+
+model wpjm_wpmailsmtp_tasks_meta {
+  id     BigInt   @id @default(autoincrement())
+  action String   @db.VarChar(255)
+  data   String   @db.LongText
+  date   DateTime @db.DateTime(0)
+}
+
+model wpjm_wpo_404_detector {
+  ID                Int    @id @default(autoincrement()) @db.UnsignedInt
+  url               String @db.Text
+  request_timestamp BigInt @db.UnsignedBigInt
+  request_count     BigInt @db.UnsignedBigInt
+  referrer          String @db.Text
+
+  @@unique([url(length: 75), request_timestamp, referrer(length: 75)], map: "url")
+  @@index([request_timestamp, request_count], map: "timestamp_count")
+  @@index([url(length: 75), request_timestamp, referrer(length: 75)], map: "url_timestamp_referrer")
+}
+
+model dashboard_user {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique(map: "uq_userdashboard") @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  updatedAt DateTime @default(now()) @db.DateTime(0)
+  isLocked  Int      @default(0)
+  isNew     Int      @default(1)
+}
+
+enum wpjm_blpwp_stats_action {
+  click
+  hover
+}
+
+enum wpjm_wfconfig_autoload {
+  no
+  yes
+}
+
+enum wpjm_wfls_settings_autoload {
+  no
+  yes
+}
+
+enum wpjm_wfsecurityevents_state {
+  new
+  sending
+  sent
+}
+
+enum wpjm_wfauditevents_state {
+  new
+  sending
+  sent
+}
+
+enum wpjm_wfls_2fa_secrets_mode {
+  authenticator
+}
+
+enum wpjm_wftrafficrates_hitType {
+  hit
+  // 404 @map("404")
+}

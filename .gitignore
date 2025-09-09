@@ -5,3 +5,4 @@ dist/
 .vscode/
 .env.local
 .env.development.local
+/src/generated/prisma
