@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
-
+import cors from 'cors'
 import logger from './util/logger';
 import authRoutes from './routes/Auth/route';
 
@@ -8,7 +8,17 @@ const app = express();
 
 const port = process.env.PORT || 3000;
 
+app.use(cors({
+  origin: process.env.NODE_ENV == 'production'? process.env.FRONTEND_URL: 'http://localhost:5173',
+  allowedHeaders: [
+    'Content-Type',
+    'x-api-key'
+  ],
+  credentials: true,
+  methods:['GET', 'POST', 'PUT', 'DELETE']
+}))
 app.use(express.json());
+
 
 app.use('/api/auth', authRoutes);
 
