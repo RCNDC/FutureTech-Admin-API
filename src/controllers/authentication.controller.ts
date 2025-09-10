@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
 import { SignupDto } from "../types/signupdto";
 import { LoginDto } from "../types/logindto";
+import logger from "../util/logger";
 
 export class AuthenticationController {
     private authService;
@@ -51,6 +52,7 @@ export class AuthenticationController {
     async refreshToken(req: Request, response: Response){
         try{
             const refreshToken = req.cookies.refreshToken;
+            
             if(!refreshToken){
                 response.status(401).json({message: 'Unauthorized'});
                 return;
@@ -59,6 +61,7 @@ export class AuthenticationController {
             response.status(200).json({accessToken: token});
 
         }catch(err){
+            logger.error('refresh token endpoing '+err)
             response.status(401).json({message: 'unauthorized'});
         }
     }

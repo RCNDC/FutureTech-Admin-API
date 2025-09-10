@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors'
+import cookieParser from 'cookie-parser';
 import logger from './util/logger';
 import authRoutes from './routes/Auth/route';
 
@@ -17,6 +18,7 @@ app.use(cors({
   credentials: true,
   methods:['GET', 'POST', 'PUT', 'DELETE']
 }))
+app.use(cookieParser())
 app.use(express.json());
 
 
