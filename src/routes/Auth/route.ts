@@ -10,5 +10,6 @@ const authRoutes = Router();
 
 authRoutes.post('/signup', AuthAPIKey, (req:Request<SignupDto>, res:Response)=>authController.signUp(req, res));
 authRoutes.post('/login', AuthAPIKey, (req:Request<LoginDto>, res:Response)=>authController.logIn(req, res));
+authRoutes.post('/refresh-token', AuthAPIKey, (req:Request, res:Response)=>authController.refreshToken(req, res));
 
 export default authRoutes;

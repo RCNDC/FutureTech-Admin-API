@@ -7,6 +7,7 @@ import { generateId } from "../util/generateId";
 import {hashSync, compareSync, genSaltSync} from 'bcrypt'
 import { AuthTokens } from "../types/authtokens";
 import { LoginDto } from "../types/logindto";
+import { Payload } from "../types/payload";
 
 export class AuthService{
     private jwtService: JwtService;
@@ -76,6 +77,24 @@ export class AuthService{
         } catch(err){
             logger.error('Error finding user: '+ err +' with email: '+ loginDto.email);
             throw new Error('Error finding user');
+        }
+    }
+    async refreshToken(refreshToken: string): Promise<string>{
+        try{
+            const payload:Payload = this.jwtService.verify(refreshToken);
+            const user = await db.dashboard_user.findUnique({
+                where:{
+                    id: payload.userId,
+                }
+            });
+            if(user && !user.isLocked){
+                return this.jwtService.sign({userId: user.id, email: user.email});
+            }
+            throw new Error('Unauthorize');
+
+        }catch(err){
+            logger.error('Error validating refresh token '+err);
+            throw new Error('invalid token');
         }
     }
 }

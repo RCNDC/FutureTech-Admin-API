@@ -47,4 +47,19 @@ export class AuthenticationController {
             response.status(400).json({ message: (err as Error).message });
         }
     }
+
+    async refreshToken(req: Request, response: Response){
+        try{
+            const refreshToken = req.cookies.refreshToken;
+            if(!refreshToken){
+                response.status(401).json({message: 'Unauthorized'});
+                return;
+            }
+            const token = await this.authService.refreshToken(refreshToken);
+            response.status(200).json({accessToken: token});
+
+        }catch(err){
+            response.status(401).json({message: 'unauthorized'});
+        }
+    }
 }
