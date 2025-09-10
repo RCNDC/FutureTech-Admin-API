@@ -981,7 +981,7 @@ model dashboard_user {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model ticket_db {
-  Id               String   @db.VarChar(50)
+  Id               String   @id @db.VarChar(50)
   Name             String   @db.VarChar(50)
   Description      String   @db.VarChar(50)
   Ticket_Type      String   @map("Ticket Type") @db.VarChar(50)
@@ -991,7 +991,6 @@ model ticket_db {
   Created_Date     DateTime @default(now()) @map("Created Date") @db.DateTime(6)
   Updated_Date     DateTime @default(now()) @map("Updated Date") @db.DateTime(6)
 
-  @@ignore
 }
 
 enum wpjm_blpwp_stats_action {
