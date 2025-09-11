@@ -65,4 +65,10 @@ export class AuthenticationController {
             response.status(401).json({message: 'unauthorized'});
         }
     }
+
+    
+
+    async logOut(req:Request, response: Response) {
+        response.clearCookie('refreshToken');
+    }
 }

@@ -4,6 +4,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser';
 import logger from './util/logger';
 import authRoutes from './routes/Auth/route';
+import userRoutes from './routes/User/route';
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(express.json());
 
 
 app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
 
 
 app.get('/', (req, res) => {
