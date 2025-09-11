@@ -5,9 +5,9 @@ export class JwtService {
 
     constructor(){}
 
-    sign(payload: Payload): string{
+    sign(payload: Payload, expires?:number): string{
         const secret = process.env.JWT_SECRET;
-        const expiresIn = Number(process.env.JWT_EXPIRES_IN) ? Number(process.env.JWT_EXPIRES_IN) : 3600; // default to 1 hour
+        const expiresIn = expires ? expires : Number(process.env.JWT_EXPIRES_IN); // default to 1 hour
         if(!secret){
             logger.error('JWT_SECRET is not defined in environment variables');
             throw new Error('JWT_SECRET is not defined in environment variables');

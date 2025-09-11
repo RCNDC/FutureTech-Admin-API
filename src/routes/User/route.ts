@@ -7,6 +7,6 @@ const userController = new UserController();
 const userRoutes = Router();
 
 userRoutes.post('/forgot-password', AuthAPIKey, (req:Request, res:Response)=>userController.forgotPassword(req, res));
-
+userRoutes.post('/reset-password', AuthAPIKey, (req:Request, res:Response)=>userController.verifyResetToken(req, res));
 
 export default userRoutes;

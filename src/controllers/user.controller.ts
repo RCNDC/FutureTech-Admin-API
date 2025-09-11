@@ -1,13 +1,12 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/user.service";
 import { MailService } from "../services/mail.service";
+import logger from "../util/logger";
 
 export class UserController{
     private userService;
-    private mailService;
     constructor(){
         this.userService = new UserService();
-        this.mailService = new MailService();
     }
 
     async forgotPassword(req:Request, response:Response){
@@ -22,12 +21,25 @@ export class UserController{
                 response.status(404).json({message: "Email doesn't exist"});
                 return;
             }
-            this.mailService.sendMail(email,"Forgot password", "test email");
+            this.userService.sendResetEmail(userExists.email);
             response.status(200).json({message: 'Email sent successfully'});
 
         }catch(error){
             response.status(400).json({message:`${error}`})
         }
         
+    }
+    async verifyResetToken(req:Request, response:Response){
+        const {token} = req.params;
+        if(!token){
+            response.status(400).json({message:'missing token'});
+            return;
+        }
+        const verify = await this.userService.verifyResetToken(token);
+        if(verify === 'success'){
+            response.status(200).json({message: 'token verified'});
+        }
+        logger.error('something went wrong verifing token');
+        response.status(500).json({message: 'something went wrong!'})
     }
 }

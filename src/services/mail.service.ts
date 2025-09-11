@@ -3,7 +3,7 @@ import { mailTransporter } from "../util/mail";
 export class MailService{
     constructor(){}
 
-    async sendMail(to: string, subject?:string, body?:string):Promise<string>{
+    async sendMail(to: string, subject?:string, body?:string, htmlContent?:any):Promise<string>{
         logger.info('Sending email to ' + to);
         if(!to){
             logger.error('Email Address Required');
@@ -15,6 +15,7 @@ export class MailService{
                 to,
                 subject: subject || 'No Subject',
                 text: body || 'No Content',
+                html: htmlContent
             });
             return sent.response
         }catch(err){
