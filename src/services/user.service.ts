@@ -5,6 +5,7 @@ import { generateId } from "../util/generateId";
 import logger from "../util/logger";
 import { JwtService } from "./jwt.service";
 import { MailService } from "./mail.service";
+import { genSalt, genSaltSync, hashSync } from "bcrypt";
 
 export class UserService{
     private mailService;
@@ -79,5 +80,42 @@ export class UserService{
             logger.error(error);
             return 'error';
         }
+    }
+    async tokenPayload(token:string){
+        try{
+            const payload = this.jwtService.verify(token);
+            return payload;
+        }catch(error){
+            logger.error(error)
+            return;
+        }
+    }
+    async updatePasswordByEmail(email:string, password:string){
+        if(!email)
+        {
+            throw new Error('Email Missing');
+        }
+        if(!password) throw new Error('Password Missing')
+        const user = await this.getUserByEmail(email);
+        if(!user) throw new Error('User not Found');
+
+        const hashedPassword = hashSync(password, genSaltSync(10));
+        user.password = hashedPassword;
+        user.updatedAt = new Date();
+        
+        try{
+            await db.dashboard_user.update({
+                where:{
+                    id: user.id,
+                },
+                data: user
+            });
+            return 'success';
+
+        }catch(error){
+            logger.error(error);
+            return 'error';
+        }
+
     }
 }
