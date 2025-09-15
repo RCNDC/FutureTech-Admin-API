@@ -6,6 +6,7 @@ import logger from './util/logger';
 import authRoutes from './routes/Auth/route';
 import userRoutes from './routes/User/route';
 import attendeeRoutes from './routes/Attendees/route';
+import ticketRoutes from './routes/Ticket/route';
 
 const app = express();
 
@@ -29,7 +30,7 @@ app.use(express.static('qrcodes'))
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/attendee', attendeeRoutes);
-
+app.use('/api/ticket', ticketRoutes)
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');

@@ -13,14 +13,14 @@ ticketRoutes.post(
 );
 
 ticketRoutes.put(
-  "/tickets/:id",
+  "/update/:id",
   AuthAPIKey,
   (req: Request<{ id: string }, any, TicketDto, any>, res: Response) =>
     TicketController.updateTicket(req, res),
 );
 
 ticketRoutes.delete(
-  "/tickets/:id",
+  "/delete/:id",
   AuthAPIKey,
   (req: Request<{ id: string }, any, {}, any>, res: Response) =>
     TicketController.deleteTicket(req, res),
