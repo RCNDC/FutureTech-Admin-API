@@ -6,19 +6,19 @@ import { generateId } from "../util/generateId";
 import { TicketDto } from "../types/ticketdto";
 
 export class TicketService {
-  async createTicket(ticketDto:TicketDto ):Promise<ticket_db> {
+  async createTicket(ticketDto: TicketDto): Promise<ticket_db> {
     try {
       const ticket = await db.ticket_db.create({
         data: {
           Id: await generateId(),
           Name: ticketDto.name,
           Description: ticketDto.description,
-          Created_By: '',
-          Event_End_Date: new Date(ticketDto.eventenddate),
-          Event_Start_Date: new Date(ticketDto.eventstartdate),
-          Ticket_Type: ticketDto.tickettype,
-          Created_Date: new Date(),
-          Updated_Date: new Date(),
+          createdBy: "",
+          eventEnddate: new Date(ticketDto.eventenddate),
+          eventStartdate: new Date(ticketDto.eventstartdate),
+          ticketType: ticketDto.tickettype,
+          createdDate: new Date(),
+          updatedDate: new Date(),
         },
       });
       return ticket;
@@ -28,33 +28,37 @@ export class TicketService {
     }
   }
 
-
-  async updateTicket(id: string, ticketData: { title?: string; type: string; status?: string }) {
+  async updateTicket(id: string, ticketDto: TicketDto): Promise<ticket_db> {
     try {
-      const updatedTicket = await db.ticket_db.update({
-        where: { id },
+      const Updatedticket = await db.ticket_db.update({
+        where: { Id: id },
         data: {
-          ...ticketData,
-          updatedAt: new Date(),
+          Name: ticketDto.name,
+          Description: ticketDto.description,
+          eventEnddate: ticketDto.eventenddate
+            ? new Date(ticketDto.eventenddate)
+            : undefined,
+          eventStartdate: ticketDto.eventstartdate
+            ? new Date(ticketDto.eventstartdate)
+            : undefined,
+          updatedDate: new Date(),
         },
       });
-      return updatedTicket;
+      return Updatedticket;
     } catch (error) {
-      logger.error('Failed to update ticket: ${error.message}');
-      throw new Error('Failed to update ticket: ${error.message}');
+      logger.error(`Failed to update ticket: ${error}`);
+      throw new Error(`Failed to update ticket: ${error}`);
     }
   }
 
-  async deleteTicket(id: string) {
+  async deleteTicket(id: string): Promise<void> {
     try {
-      const deletedTicket = await db.ticket.delete({
-        where: { id },
+      await db.ticket_db.delete({
+        where: { Id: id },
       });
-
-      return { message: 'Ticket deleted successfully' };
     } catch (error) {
-      logger.error("Failed to delete ticket: ${error.message}");
-      throw new Error('Failed to delete ticket: ${error.message}');
+      logger.error(`Failed to delete ticket: ${error}`);
+      throw new Error(`Failed to delete ticket: ${error}`);
     }
   }
 }

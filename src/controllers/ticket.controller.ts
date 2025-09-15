@@ -3,14 +3,14 @@ import { Request, Response } from "express";
 import logger from "../util/logger";
 import { TicketDto } from "../types/ticketdto";
 
-class TicketController {
+export class TicketController {
   private ticketService: TicketService;
 
   constructor() {
     this.ticketService = new TicketService();
   }
 
-  async createTicket(req: Request<TicketDto>, res: Response) {
+  async createTicket(req: Request<{}, any, TicketDto, any>, res: Response) {
     try {
       const ticketDto: TicketDto = req.body;
       if (!ticketDto) {
@@ -25,7 +25,7 @@ class TicketController {
   }
 
   async updateTicket(
-    req: Request<{ id: string; TicketDto: TicketDto }>,
+    req: Request<{ id: string }, any, TicketDto, any>,
     res: Response,
   ) {
     try {
@@ -48,7 +48,10 @@ class TicketController {
     }
   }
 
-  async deleteTicket(req: Request<{ id: string }>, res: Response) {
+  async deleteTicket(
+    req: Request<{ id: string }, any, {}, any>,
+    res: Response,
+  ) {
     try {
       const { id } = req.params;
       if (!id) {
