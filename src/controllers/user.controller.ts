@@ -59,8 +59,9 @@ export class UserController{
             return;
         }
         const payload = await this.userService.tokenPayload(token);
-        if(payload){
+        if(!payload){
             response.status(401).json({message: 'unauthorized'});
+            return;
         }
         try{
             const result = this.userService.updatePasswordByEmail(payload?.email || '', password);
@@ -71,4 +72,24 @@ export class UserController{
         }
     }
 
+    async me(req:Request, res:Response){
+        try{
+            const user = req.user;
+            if(!user){
+                logger.error('user data not found');
+                res.status(401).json({message: 'unauthorized'});
+                return;
+            }
+            const userData = await this.userService.getUserById(user.userId);
+            if(!userData){  
+                res.status(404).json({message: 'user not found'});
+                return;
+            }
+            res.status(200).json({data: userData, message:'fetched Successfully'});
+        }catch(error){
+            logger.error(error);
+            res.status(500).json({message: 'something went wrong'});
+        }
+    }
+    
 }
