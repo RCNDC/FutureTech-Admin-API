@@ -79,6 +79,7 @@ export class AuthService{
             throw new Error('Error finding user');
         }
     }
+    
     async refreshToken(refreshToken: string): Promise<string>{
         try{
             const payload:Payload = this.jwtService.verify(refreshToken);

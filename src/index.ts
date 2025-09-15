@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import logger from './util/logger';
 import authRoutes from './routes/Auth/route';
 import userRoutes from './routes/User/route';
-import ticketRoutes from './routes/Ticket/route';
+import attendeeRoutes from './routes/Attendees/route';
 
 const app = express();
 
@@ -24,10 +24,12 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.static('qrcodes'))
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api', ticketRoutes);
+app.use('/api/attendee', attendeeRoutes);
+
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');

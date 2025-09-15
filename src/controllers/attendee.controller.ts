@@ -1,0 +1,62 @@
+import { Request, Response } from "express";
+import { AttendeeDTO } from "../types/attendee";
+import logger from "../util/logger";
+import { AttendeeService } from "../services/attendee.service";
+import { OrderService } from "../services/order.service";
+import { OrderDto } from "../types/order";
+import * as QRCode from "qrcode";
+import { MailService } from "../services/mail.service";
+import { Invitation } from "../mail/templates/invitation";
+export class AttendeeController {
+    private attendeeService;
+    private orderService;
+    private mailService;
+    constructor() {
+        this.attendeeService = new AttendeeService();
+        this.orderService = new OrderService();
+        this.mailService = new MailService();
+    }
+
+    async createAttendee(req: Request<AttendeeDTO>, res: Response) {
+        const attendee = req.body;
+        try {
+            if (!attendee) {
+                logger.error('missing value')
+                res.status(400).json({ message: 'missing values' });
+                return;
+            }
+            const newAttendee = await this.attendeeService.createAttendee(attendee);
+            if (newAttendee) {
+                const order: OrderDto = {
+                    attendeeId: newAttendee.id,
+                    ticket: "Event",
+                }
+                const newOrder = await this.orderService.createOrder(order);
+                if (newOrder) {
+                    try {
+                        
+                        const test = QRCode.toString(newOrder.orderNo).then((canvas)=>{
+                            logger.info('canvas data '+ canvas);
+                            this.mailService.sendMail(newAttendee.email, 'Event Invitation', '', Invitation(newAttendee.fullname, canvas));
+                        }).catch(err=>{
+                            logger.error(err + ' canot create order')
+                        })
+                        
+                        res.status(200).json({ data: newOrder, message: 'Order created Successfully' });
+                        return;
+
+                    } catch (error) {
+                        logger.error(error+' new order failed');
+                    }
+                }
+
+            }
+            res.status(500).json({ message: 'something went wrong' })
+
+        } catch (error) {
+            logger.error(error);
+            res.status(400).json({ message: 'unable to create order' });
+        }
+
+    }
+}
