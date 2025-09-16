@@ -8,6 +8,7 @@ import {hashSync, compareSync, genSaltSync} from 'bcrypt'
 import { AuthTokens } from "../types/authtokens";
 import { LoginDto } from "../types/logindto";
 import { Payload } from "../types/payload";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export class AuthService{
     private jwtService: JwtService;
@@ -31,6 +32,7 @@ export class AuthService{
             isNew: 1
         }
         try{
+            
             const userCreated = await db.dashboard_user.create({data: newUser});
             logger.info('New user created with email' + signupDto.email);
             const accessToken =  this.jwtService.sign({userId: userCreated.id, email: userCreated.email});
@@ -38,6 +40,11 @@ export class AuthService{
             return {accessToken, refreshToken};
 
         }catch(err){
+            if(err instanceof PrismaClientKnownRequestError){
+                if(err.code === 'P2002'){
+                    throw new Error('Email already exists');
+                }
+            }
             logger.error('Error creating user: '+ err +' with email: '+ signupDto.email);
             throw new Error('Error creating user');
         }
@@ -74,9 +81,13 @@ export class AuthService{
             const refreshToken = this.jwtService.sign({userId: user.id, email: user.email});
             return {accessToken, refreshToken};
 
-        } catch(err){
-            logger.error('Error finding user: '+ err +' with email: '+ loginDto.email);
-            throw new Error('Error finding user');
+        } catch(err:any){
+            if(err instanceof PrismaClientKnownRequestError){
+                logger.error('Error finding user: '+ err +' with email: '+ loginDto.email);
+                throw new Error('Something went wrong. Please try again!');    
+            }
+
+            throw new Error(err)
         }
     }
     
