@@ -7,6 +7,7 @@ import { OrderDto } from "../types/order";
 import * as QRCode from "qrcode";
 import { MailService } from "../services/mail.service";
 import { Invitation } from "../mail/templates/invitation";
+import fs from 'fs/promises';
 export class AttendeeController {
     private attendeeService;
     private orderService;
@@ -34,19 +35,17 @@ export class AttendeeController {
                 const newOrder = await this.orderService.createOrder(order);
                 if (newOrder) {
                     try {
-                        
-                        const test = QRCode.toString(newOrder.orderNo).then((canvas)=>{
-                            logger.info('canvas data '+ canvas);
-                            this.mailService.sendMail(newAttendee.email, 'Event Invitation', '', Invitation(newAttendee.fullname, canvas));
-                        }).catch(err=>{
-                            logger.error(err + ' canot create order')
-                        })
-                        
+
+                        const test = await QRCode.toFile(newOrder.orderNo + '.png', newOrder.orderNo);
+                        console.log(test)
+                        const mailStatus = await this.mailService.sendMail(newAttendee.email, 'Event Invitation', '', Invitation(newAttendee.fullname, newAttendee.email, newAttendee.phone, 'qrcode.png'), [{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]);
+                        fs.rm(newOrder.orderNo + '.png', { maxRetries: 3 });
                         res.status(200).json({ data: newOrder, message: 'Order created Successfully' });
                         return;
 
+
                     } catch (error) {
-                        logger.error(error+' new order failed');
+                        logger.error(error + ' new order failed');
                     }
                 }
 

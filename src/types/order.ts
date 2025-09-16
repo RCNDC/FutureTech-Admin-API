@@ -3,3 +3,9 @@ export type OrderDto = {
     ticket:string;
     status?:string;
 }
+
+export type CheckInDto = {
+    orderNo:string
+}
+
+
