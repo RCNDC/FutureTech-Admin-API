@@ -11,4 +11,5 @@ const attendeeRoutes = Router();
 
 attendeeRoutes.post('/checkout', AuthAPIKey, (req:Request<AttendeeDTO>, res:Response)=>attendeeController.createAttendee(req, res));
 attendeeRoutes.post('/checkin', AuthAPIKey, (req:Request<CheckInDto>, res:Response)=>checkInController.checkIn(req, res));
+attendeeRoutes.get('/getAllAttendees', AuthAPIKey, (req: Request, res:Response)=>attendeeController.getAllAttendees(req, res));
 export default attendeeRoutes;

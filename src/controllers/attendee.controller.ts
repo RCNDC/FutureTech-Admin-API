@@ -58,4 +58,10 @@ export class AttendeeController {
         }
 
     }
+
+    async getAllAttendees(req:Request, res:Response){
+        const attendees = await this.attendeeService.getAllAttendees();
+        res.status(200).json({message: 'fetched successful', data:attendees});
+
+    }
 }

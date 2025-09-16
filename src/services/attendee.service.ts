@@ -42,4 +42,8 @@ export class AttendeeService{
         }        
 
     }
+
+    async getAllAttendees(){
+        return await db.attendees.findMany();
+    }
 }
