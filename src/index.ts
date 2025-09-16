@@ -29,7 +29,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/attendee', attendeeRoutes);
-app.use('/api', ticketRoutes)
+app.use('/api/ticket', ticketRoutes)
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');
