@@ -8,6 +8,7 @@ import * as QRCode from "qrcode";
 import { MailService } from "../services/mail.service";
 import { Invitation } from "../mail/templates/invitation";
 import fs from 'fs/promises';
+import { PrismaClientInitializationError } from "@prisma/client/runtime/library";
 export class AttendeeController {
     private attendeeService;
     private orderService;
@@ -32,22 +33,25 @@ export class AttendeeController {
                     attendeeId: newAttendee.id,
                     ticket: "Event",
                 }
+                try {
+
                 const newOrder = await this.orderService.createOrder(order);
                 if (newOrder) {
-                    try {
-
+                    
                         const test = await QRCode.toFile(newOrder.orderNo + '.png', newOrder.orderNo);
-                        console.log(test)
-                        const mailStatus = await this.mailService.sendMail(newAttendee.email, 'Event Invitation', '', Invitation(newAttendee.fullname, newAttendee.email, newAttendee.phone, 'qrcode.png'), [{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]);
+                        await this.mailService.sendMail(newAttendee.email, 'Event Invitation', '', Invitation(newAttendee.fullname, newAttendee.email, newAttendee.phone, 'qrcode.png'), [{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]);
                         fs.rm(newOrder.orderNo + '.png', { maxRetries: 3 });
                         res.status(200).json({ data: newOrder, message: 'Order created Successfully' });
                         return;
 
-
-                    } catch (error) {
-                        logger.error(error + ' new order failed');
+                        
                     }
-                }
+                    } catch (error) {
+                        logger.error(error + 'm');
+                        // logger.error(error + ' new order failed');
+                        res.status(500).json({message: error+' '});
+                        return;
+                    }
 
             }
             res.status(500).json({ message: 'something went wrong' })
@@ -62,6 +66,11 @@ export class AttendeeController {
     async getAllAttendees(req:Request, res:Response){
         const attendees = await this.attendeeService.getAllAttendees();
         res.status(200).json({message: 'fetched successful', data:attendees});
+
+    }
+    async getCheckInList(req:Request, res: Response){
+        const page = req.query.page || 1;
+        const limit = req.query.limit || 10;
 
     }
 }

@@ -14,12 +14,13 @@ export class CheckInService{
                     orderNo: orderNo
                 }
             });
-            db.attendees.update({
+            await db.attendees.update({
             where:{
-                id: order.id
+                id: order.attendeeId
             },
             data:{
-                status: 'CHECKEDIN'
+                status: 'CHECKEDIN',
+                updatedAt: new Date()
             }
         });
         return 'success';

@@ -18,7 +18,7 @@ app.use(
       process.env.NODE_ENV == 'production'
         ? process.env.FRONTEND_URL
         : 'http://localhost:5173',
-    allowedHeaders: ['Content-Type', 'x-api-key'],
+    allowedHeaders: ['Content-Type', 'x-api-key', 'Authorization'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   }),

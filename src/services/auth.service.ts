@@ -8,7 +8,7 @@ import {hashSync, compareSync, genSaltSync} from 'bcrypt'
 import { AuthTokens } from "../types/authtokens";
 import { LoginDto } from "../types/logindto";
 import { Payload } from "../types/payload";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { PrismaClientInitializationError, PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export class AuthService{
     private jwtService: JwtService;
@@ -82,7 +82,7 @@ export class AuthService{
             return {accessToken, refreshToken};
 
         } catch(err:any){
-            if(err instanceof PrismaClientKnownRequestError){
+            if(err instanceof PrismaClientKnownRequestError || err instanceof PrismaClientInitializationError){
                 logger.error('Error finding user: '+ err +' with email: '+ loginDto.email);
                 throw new Error('Something went wrong. Please try again!');    
             }

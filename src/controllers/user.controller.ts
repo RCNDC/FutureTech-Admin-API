@@ -31,11 +31,12 @@ export class UserController{
     }
     async verifyResetToken(req:Request, response:Response){
         const {token} = req.params;
-    
+        
         if(!token){
             response.status(400).json({message:'missing token'});
             return;
         }
+        console.log(token)
         const verify = await this.userService.verifyResetToken(token);
         if(verify === 'success'){
            
@@ -47,25 +48,26 @@ export class UserController{
     }
     async resetPassword(req:Request, res:Response){
         const {token} = req.params;
+       
         const {password} = req.body;
         if(!token){
-            response.status(401).json({message: 'unauthorized'});
+            res.status(401).json({message: 'unauthorized'});
             return;
         }
         const verify = await this.userService.verifyResetToken(token);
         if(!verify)
         {
-            response.status(401).json({message: 'unathorized'});
+            res.status(401).json({message: 'unathorized'});
             return;
         }
         const payload = await this.userService.tokenPayload(token);
         if(!payload){
-            response.status(401).json({message: 'unauthorized'});
+            res.status(401).json({message: 'unauthorized'});
             return;
         }
         try{
             const result = this.userService.updatePasswordByEmail(payload?.email || '', password);
-            response.status(200).json({message: 'password updated'});
+            res.status(200).json({message: 'password updated'});
         }catch(error){
             logger.error(error);
             response.status(500).json({message: 'something went wrong'});
