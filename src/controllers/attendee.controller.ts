@@ -64,7 +64,9 @@ export class AttendeeController {
     }
 
     async getAllAttendees(req:Request, res:Response){
-        const attendees = await this.attendeeService.getAllAttendees();
+        const {query} = req.query;
+        const filter = query as string;
+        const attendees = await this.attendeeService.getAllAttendees(filter);
         res.status(200).json({message: 'fetched successful', data:attendees});
 
     }

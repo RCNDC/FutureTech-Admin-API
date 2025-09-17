@@ -1,4 +1,4 @@
-import { AttendeeDTO } from "../types/attendee";
+import { AttendeeDTO, AttendeeFilterArgs } from "../types/attendee";
 import { db } from "../util/db";
 import { generateId } from "../util/generateId";
 import logger from "../util/logger";
@@ -43,7 +43,37 @@ export class AttendeeService{
 
     }
 
-    async getAllAttendees(){
+    async getAllAttendees(filterby?:string){
+        if(filterby)
+        {
+            return await db.attendees.findMany({
+                where:{
+                    OR:[
+                        {
+                            email: {
+                                contains: filterby
+                            }
+                        },
+                        {
+                            fullname: {
+                                contains: filterby
+                            }
+                        },
+                        {
+                            phone: {
+                                contains: filterby
+                            }
+                        },
+                        {
+                            id: {
+                                contains: filterby
+                            }
+                        },
+                        
+                    ]
+                },
+            })
+        }
         return await db.attendees.findMany();
     }
     
