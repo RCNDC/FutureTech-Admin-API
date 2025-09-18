@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { SubmissionService } from "../services/submission.service";
+import { calculateChange } from "../util/calculateStat";
 
 export class SubmissionsController {
 
@@ -96,5 +97,38 @@ export class SubmissionsController {
         }
         const submissions = await this.submissionService.getStartupSubmissionsById(BigInt(id));
         res.status(200).json({ message: 'Submission fetched', data: submissions });
+    }
+
+    async getSubmissionStat(req:Request, res: Response){
+        const totalNGOSubmission = await this.submissionService.getNGOSubmissions() || [];
+        const totalLocalCompanySubmission = await this.submissionService.getLocalCompanySubmissions() || [];
+        const totalInternationCompanySubmission = await this.submissionService.getInternationalCompanySubmissions() || [];
+        const totalStartupSubmission = await this.submissionService.getStartupSubmissions() || [];
+        const totalEmbassySubmission = await this.submissionService.getEmabassySubmissions() || [];
+        const ngoChange = calculateChange(totalNGOSubmission);
+        const localCompanyChange = calculateChange(totalLocalCompanySubmission);
+        const internationalCompanyChange = calculateChange(totalInternationCompanySubmission);
+        const startupChange = calculateChange(totalStartupSubmission);
+        const embassyChange = calculateChange(totalEmbassySubmission);
+        console.log(ngoChange)
+        console.log(localCompanyChange)
+        console.log(internationalCompanyChange)
+        console.log(startupChange)
+        res.status(200).json({message:'fetched successfull', data:{
+            'totalNgoSubmission': totalNGOSubmission.length,
+            'totalLocalCompanySubmission': totalLocalCompanySubmission.length,
+            'totalInternationCompanySubmission': totalInternationCompanySubmission.length,
+            'totalStartupSubmission': totalStartupSubmission.length,
+            'ngoChange': ngoChange,
+            'internationCompanyChange': internationalCompanyChange,
+            'localCompanyChange': localCompanyChange,
+            'startupChange': startupChange,
+            'embassyChange': embassyChange,
+            
+        } })
+        
+
+
+
     }
 }
