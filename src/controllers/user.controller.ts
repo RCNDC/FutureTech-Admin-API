@@ -74,12 +74,12 @@ export class UserController{
         }
     }
 
-    async getAllUsers(req: Request, res: Response) {
-        const { query } = req.query;
-        const filter = query as string;
-        const users = await this.userService.getAllUsers(filter);
-        res.status(200).json({ message: 'fetched successful', data: users });
-    }
+    // async getAllUsers(req: Request, res: Response) {
+    //     const { query } = req.query;
+    //     const filter = query as string;
+    //     const users = await this.userService.getAllUsers(filter);
+    //     res.status(200).json({ message: 'fetched successful', data: users });
+    // }
 
     async me(req:Request, res:Response){
         try{

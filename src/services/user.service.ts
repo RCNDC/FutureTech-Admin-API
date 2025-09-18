@@ -15,7 +15,7 @@ export class UserService{
         this.jwtService = new JwtService()
     }
 
-    async getUserById(userId:string): Promise<User>{
+    async getUserById(userId:string): Promise<any>{
         if(!userId){
             throw new Error("User id missing");
         }
