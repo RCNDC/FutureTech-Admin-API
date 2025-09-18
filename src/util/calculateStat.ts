@@ -13,7 +13,7 @@ export const calculateChange = (submissionData:any)=>{
             let currentCount = 0; 
             let prevCount = 0;
          
-            if(prev){
+            if(prev.length > 1){
                 prevCount = groupedStudents[prev[prev.length - 2]].length;
             }
             if(current){

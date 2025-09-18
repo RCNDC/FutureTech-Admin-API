@@ -114,11 +114,13 @@ export class SubmissionsController {
         console.log(localCompanyChange)
         console.log(internationalCompanyChange)
         console.log(startupChange)
+        console.log(embassyChange)
         res.status(200).json({message:'fetched successfull', data:{
             'totalNgoSubmission': totalNGOSubmission.length,
             'totalLocalCompanySubmission': totalLocalCompanySubmission.length,
             'totalInternationCompanySubmission': totalInternationCompanySubmission.length,
             'totalStartupSubmission': totalStartupSubmission.length,
+            'totalEmbassySubmission': totalEmbassySubmission.length,
             'ngoChange': ngoChange,
             'internationCompanyChange': internationalCompanyChange,
             'localCompanyChange': localCompanyChange,
