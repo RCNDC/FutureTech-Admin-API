@@ -7,6 +7,7 @@ import authRoutes from './routes/Auth/route';
 import userRoutes from './routes/User/route';
 import attendeeRoutes from './routes/Attendees/route';
 import ticketRoutes from './routes/Ticket/route';
+import submissionRoute from './routes/Submission/route';
 
 const app = express();
 
@@ -29,7 +30,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/attendee', attendeeRoutes);
-app.use('/api/ticket', ticketRoutes)
+app.use('/api/ticket', ticketRoutes);
+app.use('/api/register', submissionRoute);
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');
