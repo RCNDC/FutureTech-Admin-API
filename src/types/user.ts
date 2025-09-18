@@ -3,5 +3,5 @@ export type User = {
     isLocked: number,
     createdAt: Date,
     updatedAt: Date,
-
+    isNew: number
 }
