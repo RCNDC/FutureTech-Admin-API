@@ -1,11 +1,14 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["typedSql"]  
 }
 
 datasource db {
   provider          = "mysql"
+
   url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  
 }
 
 model wpjm_actionscheduler_actions {

@@ -43,9 +43,12 @@ export class AttendeeService{
 
     }
 
-    async getAllAttendees(filterby?:string){
-        if(filterby)
+    async getAllAttendees(query?:any){
+        
+        if(query !== "undefined")
         {
+            const filterby = query as string;
+
             return await db.attendees.findMany({
                 where:{
                     OR:[
