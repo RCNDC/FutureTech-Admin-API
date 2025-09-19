@@ -20,7 +20,7 @@ export class AuthenticationController {
             const tokens = await this.authService.signup(signupDto);
             response.cookie('refreshToken', tokens.refreshToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production', // Set to true in production
+                secure: true, // Set to true in production
                 sameSite: 'strict', // Adjust based on your requirements
                 maxAge: process.env.REFRESH_TOKEN_EXPIRY ? parseInt(process.env.REFRESH_TOKEN_EXPIRY) * 1000 : 7 * 24 * 60 * 60 * 1000 // Default to 7 days
             });
@@ -39,7 +39,7 @@ export class AuthenticationController {
             const tokens = await this.authService.login(signupDto);
             response.cookie('refreshToken', tokens.refreshToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production', // Set to true in production
+                secure: true, // Set to true in production
                 sameSite: 'strict', // Adjust based on your requirements
                 maxAge: process.env.REFRESH_TOKEN_EXPIRY ? parseInt(process.env.REFRESH_TOKEN_EXPIRY) * 1000 : 7 * 24 * 60 * 60 * 1000 // Default to 7 days
             });
