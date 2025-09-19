@@ -21,7 +21,7 @@ export class AuthenticationController {
             response.cookie('refreshToken', tokens.refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production', // Set to true in production
-                sameSite: 'strict', // Adjust based on your requirements
+                sameSite: 'lax', // Adjust based on your requirements
                 maxAge: process.env.REFRESH_TOKEN_EXPIRY ? parseInt(process.env.REFRESH_TOKEN_EXPIRY) * 1000 : 7 * 24 * 60 * 60 * 1000 // Default to 7 days
             });
             response.status(201).json({ accessToken: tokens.accessToken });
@@ -40,7 +40,7 @@ export class AuthenticationController {
             response.cookie('refreshToken', tokens.refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production', // Set to true in production
-                sameSite: 'strict', // Adjust based on your requirements
+                sameSite: 'lax', // Adjust based on your requirements
                 maxAge: process.env.REFRESH_TOKEN_EXPIRY ? parseInt(process.env.REFRESH_TOKEN_EXPIRY) * 1000 : 7 * 24 * 60 * 60 * 1000 // Default to 7 days
             });
             response.status(201).json({ accessToken: tokens.accessToken });
