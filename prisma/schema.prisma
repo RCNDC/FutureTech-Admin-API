@@ -1,14 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
-  previewFeatures = ["typedSql"]  
+  provider        = "prisma-client-js"
+  previewFeatures = ["typedSql"]
 }
 
 datasource db {
   provider          = "mysql"
-
   url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
-  
 }
 
 model wpjm_actionscheduler_actions {
@@ -1014,6 +1012,30 @@ model orders {
   updatedAt  DateTime      @default(now()) @db.DateTime(0)
 }
 
+model followup {
+  id       String          @id @db.VarChar(255)
+  entry_id Int
+  status   followup_status
+}
+
+model followuphistory {
+  id         String                 @id @db.VarChar(255)
+  followupId String                 @db.VarChar(20)
+  editedBy   String                 @db.VarChar(20)
+  status     followuphistory_status
+  createdAt  DateTime               @default(now()) @db.DateTime(0)
+  updatedAt  DateTime               @default(now()) @db.DateTime(0)
+}
+
+model followupnotes {
+  Id           String   @id @db.VarChar(255)
+  title        String   @db.VarChar(100)
+  description  String   @db.VarChar(255)
+  followUpDate DateTime @db.Date
+  followUpId   String   @db.VarChar(20)
+  isCompleted  Int      @default(0)
+}
+
 enum wpjm_blpwp_stats_action {
   click
   hover
@@ -1057,6 +1079,19 @@ enum attendees_status {
   COMPLETED
   CANCLLED
   CHECKEDIN
+}
+
+enum followup_status {
+  Completed
+  InProgress
+  NotStarted
+  Fail
+}
+
+enum followuphistory_status {
+  Created
+  Closed
+  Open
 }
 
 enum wpjm_wftrafficrates_hitType {
