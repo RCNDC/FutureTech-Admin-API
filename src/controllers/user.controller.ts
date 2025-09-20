@@ -81,6 +81,16 @@ export class UserController{
         res.status(200).json({ message: 'fetched successful', data: users });
     }
 
+    async createUser(req: Request, res: Response) {
+        try {
+            const newUser = await this.userService.createUser(req.body);
+            res.status(201).json({ message: 'user created successfully', data: newUser });
+        } catch (error) {
+            logger.error(error);
+            res.status(400).json({ message: (error as Error).message });
+        }
+    }
+
     async me(req:Request, res:Response){
         try{
             const user = req.user;

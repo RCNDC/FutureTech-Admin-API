@@ -12,5 +12,6 @@ userRoutes.post('/reset-password/:token', AuthAPIKey, (req:Request, res:Response
 userRoutes.post('/change-password/:token', AuthAPIKey,  (req:Request, res:Response)=> userController.resetPassword(req, res));
 userRoutes.get('/me', [AuthAPIKey, AuthGuard], (req:Request, res:Response)=>userController.me(req, res));
 userRoutes.get('/getAllUsers', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => userController.getAllUsers(req, res));
+userRoutes.post('/createUser', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => userController.createUser(req, res));
 
 export default userRoutes;
