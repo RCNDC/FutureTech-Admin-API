@@ -59,4 +59,31 @@ export class FollowUpController{
             }
         }
     }
+
+    async updateFollowStatus(req:Request, res:Response){
+        const followUp = req.body;
+        if(!followUp){
+            res.status(400).json({message: 'missing values'});
+            return;
+        }
+        console.log(followUp)
+        followUp.editedBy = req.user?.userId;
+        try{
+            const updateFollowUp = await this.followUpService.updateFollowupStatus(followUp);
+            res.status(200).json({message: 'updated successfully', data: updateFollowUp});
+            return;
+        }catch(error){
+            logger.error(error);
+            if(error instanceof Error){
+                res.status(400).json({message: error.message});
+                return;
+            }
+            res.status(500).json({message: 'something went wrong. Please try again'});
+            return;
+        }
+
+
+    }
+
+      
 }

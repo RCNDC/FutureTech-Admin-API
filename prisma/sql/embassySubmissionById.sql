@@ -36,7 +36,9 @@ FROM
     and t8.meta_key = 'radio-2'
     LEFT JOIN cte_submissions as t9 ON t1.entry_id = t9.entry_id
     and t9.meta_key = 'number-2'
+    LEFT JOIN cte_submissions as t10 ON t1.entry_id = t10.entry_id
+    and t10.meta_key = 'select-7'
 WHERE
-    t1.meta_key = 'name-1' AND t4.meta_value = 'Embassy Delegation' AND t1.entry_id = ?
+    t1.meta_key = 'name-1' AND t10.meta_value = 'Embassy Delegation' AND t1.entry_id = ?
 GROUP BY
     t1.entry_id;

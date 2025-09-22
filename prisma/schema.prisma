@@ -1032,7 +1032,7 @@ model followupnotes {
   title        String   @db.VarChar(100)
   description  String   @db.VarChar(255)
   followUpDate DateTime @db.Date
-  followUpId   String   @db.VarChar(20)
+  followUpId   String   @db.VarChar(255)
   isCompleted  Int      @default(0)
 }
 

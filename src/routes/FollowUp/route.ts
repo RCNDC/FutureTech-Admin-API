@@ -8,5 +8,6 @@ const followController = new FollowUpController();
 
 followRoute.post('/followup/create', [AuthAPIKey, AuthGuard], (req:Request, res:Response)=>followController.createFollowUp(req, res))
 followRoute.get('/followup', [AuthAPIKey, AuthGuard], (req:Request, res:Response)=>followController.getFollowUpByEntryId(req, res))
+followRoute.post('/followup/updatestatus', [AuthAPIKey, AuthAPIKey], (req:Request, res:Response)=>followController.updateFollowStatus(req, res))
 
 export default followRoute;

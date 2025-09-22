@@ -1,5 +1,5 @@
 import { PrismaClientValidationError } from "@prisma/client/runtime/library";
-import { FollowUpDto } from "../types/followup";
+import { FollowUpDto, FollowUpStatusUpdateDto } from "../types/followup";
 import { db } from "../util/db";
 import { generateId } from "../util/generateId";
 import logger from "../util/logger";
@@ -57,6 +57,34 @@ export class FollowUpService{
                 logger.error(error);
             }
         }
+
+    }
+    async updateFollowupStatus(followUpUpdateDto:FollowUpStatusUpdateDto){
+        try{
+            console.log(followUpUpdateDto)
+            const follow = await db.followup.findFirst({
+                where:{
+                    id: followUpUpdateDto.followUpId
+                }
+            });
+    
+            if(!follow) throw new Error('followup not found');
+    
+            follow.status = followUpUpdateDto.status;
+            const updatedFollowUp = await db.followup.update({
+                where:{
+                    id: followUpUpdateDto.followUpId
+                },
+                data:follow
+            });
+            return updatedFollowUp;
+        }catch(err){
+            logger.error(err+'');
+            if(err instanceof Error){
+                throw err;
+            }
+        }
+
 
     }
     
