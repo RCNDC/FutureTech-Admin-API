@@ -8,6 +8,8 @@ import userRoutes from './routes/User/route';
 import attendeeRoutes from './routes/Attendees/route';
 import ticketRoutes from './routes/Ticket/route';
 import submissionRoute from './routes/Submission/route';
+import followRoute from './routes/FollowUp/route';
+import followupNoteRoute from './routes/FollowUpNote/route';
 
 const app = express();
 
@@ -15,10 +17,7 @@ const port = process.env.PORT || 3000;
 
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV == 'production'
-        ? process.env.FRONTEND_URL
-        : 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL,
     allowedHeaders: ['Content-Type', 'x-api-key', 'Authorization'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -32,6 +31,8 @@ app.use('/api/user', userRoutes);
 app.use('/api/attendee', attendeeRoutes);
 app.use('/api/ticket', ticketRoutes);
 app.use('/api/register', submissionRoute);
+app.use('/api/submission', followRoute);
+app.use('/api/progress', followupNoteRoute);
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');
