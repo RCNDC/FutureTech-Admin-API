@@ -39,6 +39,7 @@ export class UserService{
     }
 
     async getAllUsers(filter: string): Promise<User[]> {
+        
         const users = await db.dashboard_user.findMany({
             where: {
                 email: {

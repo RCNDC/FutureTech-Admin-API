@@ -7,7 +7,13 @@ WITH
         WHERE
             entry.form_id = 4783
     )
-SELECT t1.entry_id, t1.meta_value as 'fullName', t2.meta_value as email, t3.meta_value as 'phoneNo', t4.meta_value as 'registerAs', t1.date_created as 'registeredDate', t5.meta_value as 'companyName'
+SELECT t1.entry_id, 
+       t1.meta_value as 'fullName', 
+       t2.meta_value as email, 
+       t3.meta_value as 'phoneNo', 
+       t4.meta_value as 'registerAs', 
+       t1.date_created as 'registeredDate', 
+       t5.meta_value as 'companyName'
 FROM
     cte_submissions as t1
     LEFT JOIN cte_submissions as t2 ON t1.entry_id = t2.entry_id

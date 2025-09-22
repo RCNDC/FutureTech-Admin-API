@@ -60,7 +60,6 @@ export class SubmissionService {
     }
     async getEmabassySubmissionsById(entry_id: bigint) {
         const submission = await db.$queryRawTyped(embassySubmissionById(entry_id));
-        console.log(submission);
         return CastBigIntFromJson(submission)
 
 
