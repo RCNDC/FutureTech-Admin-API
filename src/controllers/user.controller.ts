@@ -27,11 +27,11 @@ export class UserController{
         }catch(error){
             response.status(400).json({message:`${error}`})
         }
-        
+
     }
     async verifyResetToken(req:Request, response:Response){
         const {token} = req.params;
-        
+
         if(!token){
             response.status(400).json({message:'missing token'});
             return;
@@ -39,7 +39,7 @@ export class UserController{
         console.log(token)
         const verify = await this.userService.verifyResetToken(token);
         if(verify === 'success'){
-           
+
             response.status(200).json({message: 'success'});
             return;
         }
@@ -48,7 +48,7 @@ export class UserController{
     }
     async resetPassword(req:Request, res:Response){
         const {token} = req.params;
-       
+
         const {password} = req.body;
         if(!token){
             res.status(401).json({message: 'unauthorized'});
@@ -74,12 +74,12 @@ export class UserController{
         }
     }
 
-    // async getAllUsers(req: Request, res: Response) {
-    //     const { query } = req.query;
-    //     const filter = query as string;
-    //     const users = await this.userService.getAllUsers(filter);
-    //     res.status(200).json({ message: 'fetched successful', data: users });
-    // }
+     async getAllUsers(req: Request, res: Response) {
+       const { query } = req.query;
+        const filter = query as string;
+        const users = await this.userService.getAllUsers(filter);
+        res.status(200).json({ message: 'fetched successful', data: users });
+     }
 
     async createUser(req: Request, res: Response) {
         try {
@@ -100,7 +100,7 @@ export class UserController{
                 return;
             }
             const userData = await this.userService.getUserById(user.userId);
-            if(!userData){  
+            if(!userData){
                 res.status(404).json({message: 'user not found'});
                 return;
             }
@@ -110,5 +110,5 @@ export class UserController{
             res.status(500).json({message: 'something went wrong'});
         }
     }
-    
+
 }
