@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev # This workflow runs on pushes to the 'main' branch.
+      - feature
 
 jobs:
   test_and_deploy:
