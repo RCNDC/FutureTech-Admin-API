@@ -12,67 +12,117 @@ import { ngoSubmission,
 
 import { db } from "../util/db";
 import { CastBigIntFromJson } from '../util/parsejson';
+import logger from '../util/logger';
 
 export class SubmissionService {
     constructor() { }
 
     async getNGOSubmissions() {
-        const submissions = await db.$queryRawTyped(ngoSubmission());
-        return CastBigIntFromJson(submissions)
+        try{
+            const submissions = await db.$queryRawTyped(ngoSubmission());
+            return CastBigIntFromJson(submissions)
+
+        }catch(err){
+            logger.error(err+'');
+        }
 
 
     }
 
     async getNGOSubmissionsById(entry_id: bigint) {
-        const submission = await db.$queryRawTyped(ngoSubmissionById(entry_id));
-        return CastBigIntFromJson(submission);
+        try{
+            const submission = await db.$queryRawTyped(ngoSubmissionById(entry_id));
+            return CastBigIntFromJson(submission);
+
+        }catch(err){
+            logger.error(err+'');
+        }
     }
 
     async getLocalCompanySubmissions() {
-        const submissions = await db.$queryRawTyped(localCompanySubmission());
-        
-        return CastBigIntFromJson(submissions)
+        try{
+            const submissions = await db.$queryRawTyped(localCompanySubmission());
+            return CastBigIntFromJson(submissions)
+
+        }catch(err){
+            logger.error(err+'');
+        }
 
 
     }
     async getLocalCompanySubmissionById(entry_id: bigint) {
-        const submission = await db.$queryRawTyped(localCompanySubmissionById(entry_id));
-        return CastBigIntFromJson(submission);
+        try{
+            const submission = await db.$queryRawTyped(localCompanySubmissionById(entry_id));
+            return CastBigIntFromJson(submission);
+
+        }catch(err){
+            logger.error(err+'');
+        }
     }
     
     async getInternationalCompanySubmissions() {
-        const submissions = await db.$queryRawTyped(internationalCompanySubmission());
-        return CastBigIntFromJson(submissions)
+        try{
+            const submissions = await db.$queryRawTyped(internationalCompanySubmission());
+            return CastBigIntFromJson(submissions)
+
+        }catch(err){
+            logger.error(err+'');
+        }
 
 
     }
     async getInternationalCompanySubmission(entry_id: bigint) {
-        const submission = await db.$queryRawTyped(internationalCompanySubmissionById(entry_id));
-        return CastBigIntFromJson(submission)
+        try{
+            const submission = await db.$queryRawTyped(internationalCompanySubmissionById(entry_id));
+            return CastBigIntFromJson(submission)
+
+        }catch(err){
+            logger.error(err+'');
+        }
 
 
     }
     async getEmabassySubmissions() {
-        const submissions = await db.$queryRawTyped(embassySubmission());
-        return CastBigIntFromJson(submissions)
+        try{
+            const submissions = await db.$queryRawTyped(embassySubmission());
+            return CastBigIntFromJson(submissions)
+
+        }catch(err){
+            logger.error(err+'');
+        }
 
 
     }
     async getEmabassySubmissionsById(entry_id: bigint) {
-        const submission = await db.$queryRawTyped(embassySubmissionById(entry_id));
-        return CastBigIntFromJson(submission)
+        try{
+            const submission = await db.$queryRawTyped(embassySubmissionById(entry_id));
+            return CastBigIntFromJson(submission)
+
+        }catch(err){
+            logger.error(err+'');
+        }
 
 
     }
     async getStartupSubmissions() {
-        const submissions = await db.$queryRawTyped(startupSubmission());
-        return CastBigIntFromJson(submissions)
+        try{
+            const submissions = await db.$queryRawTyped(startupSubmission());
+            return CastBigIntFromJson(submissions)
+
+        }catch(err){
+            logger.error(err+'');
+        }
 
 
     }
     async getStartupSubmissionsById(entry_id:bigint) {
-        const submissions = await db.$queryRawTyped(startupSubmissionById(entry_id));
-        return CastBigIntFromJson(submissions)
+        try{
+            const submissions = await db.$queryRawTyped(startupSubmissionById(entry_id));
+            return CastBigIntFromJson(submissions)
+
+        }catch(err){
+            logger.error(err+'');
+        }
 
 
     }

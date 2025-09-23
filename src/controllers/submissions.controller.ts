@@ -20,7 +20,6 @@ export class SubmissionsController {
         const { id } = req.params;
         if (id) {
             const submission = await this.submissionService.getNGOSubmissionsById(BigInt(id as string));
-            console.log(submission);
             res.status(200).json({ message: 'fetched successful', data: submission });
             return;
         }
@@ -43,7 +42,6 @@ export class SubmissionsController {
             return;
         }
         const submission = await this.submissionService.getLocalCompanySubmissionById(BigInt(id));
-        console.log(submission);
         res.status(200).json({ message: 'Submission fetched', data: submission });
     }
 
@@ -98,7 +96,6 @@ export class SubmissionsController {
             return;
         }
         const submissions = await this.submissionService.getStartupSubmissionsById(BigInt(id));
-        console.log(submissions);
         res.status(200).json({ message: 'Submission fetched', data: submissions });
     }
 
