@@ -24,13 +24,14 @@ export class FollowNoteController{
     }
 
     async updateNote(req:Request, res:Response){
-        const updateNote = req.body;
-        if(!updateNote){
+        const body = req.body;
+        const {id} = req.params;
+        if(!id){
             res.status(400).json({message: 'missing values'});
             return;
         }
         try{
-            const updatedNote = await this.followNoteService.updateNoteStatus(updateNote);
+            const updatedNote = await this.followNoteService.updateNoteStatus(id, body.isCompleted);
             res.status(200).json({message: 'note updated', data: updatedNote});
             return;
         }catch(err){

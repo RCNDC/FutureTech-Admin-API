@@ -9,7 +9,7 @@ const followUpNoteController = new FollowNoteController();
 
 followupNoteRoute.post('/followupnote/create',[AuthAPIKey, AuthGuard], (req:Request, res:Response)=>followUpNoteController.createNote(req, res));
 followupNoteRoute.delete('/followupnote/delete/:followUpNoteId',[AuthAPIKey, AuthGuard], (req:Request<FollowUpNoteParam>, res:Response)=>followUpNoteController.deleteNote(req, res));
-followupNoteRoute.post('/followupnote/update',[AuthAPIKey, AuthGuard], (req:Request, res:Response)=>followUpNoteController.updateNote(req, res));
+followupNoteRoute.post('/followupnote/update/:id',[AuthAPIKey, AuthGuard], (req:Request, res:Response)=>followUpNoteController.updateNote(req, res));
 followupNoteRoute.get('/followupnote/:followUpId', [AuthAPIKey, AuthGuard], (req:Request, res:Response)=>followUpNoteController.getNotes(req, res));
 
 

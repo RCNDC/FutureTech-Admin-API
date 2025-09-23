@@ -68,18 +68,18 @@ export class FollowUpNoteService{
         }
     }
 
-    async updateNoteStatus(followUpNoteUpdateDto:FollowUpNoteUpdateDto){
-        if(!followUpNoteUpdateDto){
+    async updateNoteStatus(id:string, isCompleted: number){
+        if(!id){
             throw new Error('mission value');
         }
         try{
             const note = await db.followupnotes.findFirst({
                 where:{
-                    Id: followUpNoteUpdateDto.id
+                    Id: id
                 }
             });
             if(!note) throw new Error("note not found");
-            note.isCompleted = followUpNoteUpdateDto.isCompleted;
+            note.isCompleted = isCompleted;
             console.log(note);
             const updatedNote = await db.followupnotes.update({
                 where:{
