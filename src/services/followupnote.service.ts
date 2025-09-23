@@ -80,6 +80,7 @@ export class FollowUpNoteService{
             });
             if(!note) throw new Error("note not found");
             note.isCompleted = followUpNoteUpdateDto.isCompleted;
+            console.log(note);
             const updatedNote = await db.followupnotes.update({
                 where:{
                     Id: note.Id,

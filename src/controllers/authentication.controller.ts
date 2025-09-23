@@ -69,6 +69,8 @@ export class AuthenticationController {
     
 
     async logOut(req:Request, response: Response) {
+        logger.info('ree')
         response.clearCookie('refreshToken');
+        response.status(200).json({message: 'logged out'})
     }
 }

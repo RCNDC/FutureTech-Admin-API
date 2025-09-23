@@ -47,7 +47,7 @@ export class FollowNoteController{
         }
         try{
             const notes = await this.followNoteService.getNotes(followUpId);
-            console.log(notes)
+           
             res.status(200).json({message: 'fetched successful', data: notes});
             return;
 

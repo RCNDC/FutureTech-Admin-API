@@ -110,11 +110,7 @@ export class SubmissionsController {
         const internationalCompanyChange = calculateChange(totalInternationCompanySubmission);
         const startupChange = calculateChange(totalStartupSubmission);
         const embassyChange = calculateChange(totalEmbassySubmission);
-        console.log(ngoChange)
-        console.log(localCompanyChange)
-        console.log(internationalCompanyChange)
-        console.log(startupChange)
-        console.log(embassyChange)
+      
         res.status(200).json({message:'fetched successfull', data:{
             'totalNgoSubmission': totalNGOSubmission.length,
             'totalLocalCompanySubmission': totalLocalCompanySubmission.length,
