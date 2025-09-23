@@ -7,10 +7,10 @@ WITH
         WHERE
             entry.form_id = 4783
     )
-SELECT t1.entry_id, 
-       t1.meta_value as 'fullName', 
-       t2.meta_value as email, 
-       t3.meta_value as 'phoneNo', 
+SELECT t1.entry_id,
+       t1.meta_value as 'fullName',
+       t2.meta_value as email,
+       t3.meta_value as 'phoneNo',
        t4.meta_value as 'orgName',
        t5.meta_value as 'requestSpeaking',
        t6.meta_value as 'collaborate',
@@ -33,7 +33,9 @@ FROM
     and t7.meta_key = 'upload-6'
     LEFT JOIN cte_submissions as t8 ON t1.entry_id = t8.entry_id
     and t8.meta_key = 'text-8'
+    LEFT JOIN cte_submissions as t9 ON t1.entry_id = t9.entry_id
+    and t9.meta_key = 'select-7'
 WHERE
-    t1.meta_key = 'name-1' AND t4.meta_value = 'NGO or Foundation' AND t1.entry_id = ?
+    t1.meta_key = 'name-1' AND t9.meta_value = 'NGO or Foundation' AND t1.entry_id = ?
 GROUP BY
     t1.entry_id;

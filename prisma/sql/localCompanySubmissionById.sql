@@ -7,10 +7,10 @@ WITH
         WHERE
             entry.form_id = 4783
     )
-SELECT t1.entry_id, 
-	   t1.meta_value as 'fullName', 
-	   t2.meta_value as email, 
-	   t3.meta_value as 'phoneNo', 
+SELECT t1.entry_id,
+	   t1.meta_value as 'fullName',
+	   t2.meta_value as email,
+	   t3.meta_value as 'phoneNo',
 	   t4.meta_value as 'position',
 	   t5.meta_value as 'companyName',
        t6.meta_value as 'companyProfile',
@@ -22,7 +22,7 @@ SELECT t1.entry_id,
        t12.meta_value as 'directoryListed',
        t13.meta_value as 'interest',
        t14.meta_value as 'numberOfAttendee',
-	   t15.meta_value as 'registerAs', 
+	   t15.meta_value as 'registerAs',
 	   t1.date_created as 'registeredDate'
 FROM
     cte_submissions as t1
@@ -55,6 +55,6 @@ FROM
     LEFT JOIN cte_submissions as t15 ON t1.entry_id = t15.entry_id
     AND t15.meta_key = 'select-7'
 WHERE
-    t1.meta_key = 'name-1' AND t14.meta_value = 'Local Company' AND t1.entry_id = ?
+    t1.meta_key = 'name-1' AND t15.meta_value = 'Local Company' AND t1.entry_id = ?
 GROUP BY
     t1.entry_id;

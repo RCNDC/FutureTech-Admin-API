@@ -7,12 +7,12 @@ WITH
         WHERE
             entry.form_id = 4783
     )
-SELECT t1.entry_id, 
-        t1.meta_value as 'fullName', 
-        t2.meta_value as email, 
-        t3.meta_value as 'phoneNo', 
+SELECT t1.entry_id,
+        t1.meta_value as 'fullName',
+        t2.meta_value as email,
+        t3.meta_value as 'phoneNo',
         t4.meta_value as 'startupName',
-        t5.meta_value as 'industry',         
+        t5.meta_value as 'industry',
         t6.meta_value as 'govId',
         t7.meta_value as 'booth',
         t8.meta_value as 'reqMentorship',
@@ -45,7 +45,9 @@ FROM
     and t11.meta_key = 'upload-5'
     LEFT JOIN cte_submissions as t12 ON t1.entry_id = t12.entry_id
     and t12.meta_key = 'radio-8'
+    LEFT JOIN cte_submissions as t13 ON t1.entry_id = t13.entry_id
+    and t13.meta_key = 'select-7'
 WHERE
-    t1.meta_key = 'name-1' AND t4.meta_value = 'Local Startup' AND t1.entry_id = ?
+    t1.meta_key = 'name-1' AND t13.meta_value = 'Local Startup' AND t1.entry_id = ?
 GROUP BY
     t1.entry_id;

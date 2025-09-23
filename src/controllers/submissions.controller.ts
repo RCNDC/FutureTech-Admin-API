@@ -14,27 +14,28 @@ export class SubmissionsController {
         const submissions = await this.submissionService.getNGOSubmissions();
         res.status(200).json({ message: 'Submission fetched', data: submissions });
     }
-    
-    
+
+
     async getNGOSubmissionById(req: Request, res: Response) {
         const { id } = req.params;
         if (id) {
             const submission = await this.submissionService.getNGOSubmissionsById(BigInt(id as string));
+            console.log(submission);
             res.status(200).json({ message: 'fetched successful', data: submission });
             return;
         }
         res.status(400).json({ message: 'missing ID' });
 
     }
-    
-    
+
+
     async getLocalCompanySubmissions(req: Request, res: Response) {
 
         const submissions = await this.submissionService.getLocalCompanySubmissions();
         res.status(200).json({ message: 'Submission fetched', data: submissions });
     }
-    
-    
+
+
     async getLocalCompanySubmissionById(req: Request, res: Response) {
         const { id } = req.params;
         if (!id) {
@@ -42,17 +43,18 @@ export class SubmissionsController {
             return;
         }
         const submission = await this.submissionService.getLocalCompanySubmissionById(BigInt(id));
+        console.log(submission);
         res.status(200).json({ message: 'Submission fetched', data: submission });
     }
-    
-    
+
+
     async getEmbassySubmissions(req: Request, res: Response) {
 
         const submissions = await this.submissionService.getEmabassySubmissions();
         res.status(200).json({ message: 'Submission fetched', data: submissions });
     }
-    
-    
+
+
     async getEmbassySubmissionsById(req: Request, res: Response) {
         const { id } = req.params;
         if (!id) {
@@ -69,8 +71,8 @@ export class SubmissionsController {
         const submissions = await this.submissionService.getInternationalCompanySubmissions();
         res.status(200).json({ message: 'Submission fetched', data: submissions });
     }
-    
-    
+
+
     async getInternationalCompanySubmissionById(req: Request, res: Response) {
         const { id } = req.params;
         if (!id) {
@@ -96,6 +98,7 @@ export class SubmissionsController {
             return;
         }
         const submissions = await this.submissionService.getStartupSubmissionsById(BigInt(id));
+        console.log(submissions);
         res.status(200).json({ message: 'Submission fetched', data: submissions });
     }
 
@@ -126,9 +129,9 @@ export class SubmissionsController {
             'localCompanyChange': localCompanyChange,
             'startupChange': startupChange,
             'embassyChange': embassyChange,
-            
+
         } })
-        
+
 
 
 
