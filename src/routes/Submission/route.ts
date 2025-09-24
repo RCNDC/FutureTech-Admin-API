@@ -15,6 +15,10 @@ submissionRoute.get('/submission/internationalcompany', AuthAPIKey, (req:Request
 submissionRoute.get('/submission/internationalcompany/:id', AuthAPIKey, (req:Request, res:Response)=>submissionController.getInternationalCompanySubmissionById(req,res))
 submissionRoute.get('/submission/startup', AuthAPIKey, (req:Request, res:Response)=>submissionController.getStartupSubmissions(req,res))
 submissionRoute.get('/submission/startup/:id', AuthAPIKey, (req:Request, res:Response)=>submissionController.getStartupSubmissionsById(req,res))
+submissionRoute.get('/submission/event', AuthAPIKey, (req:Request, res:Response)=>submissionController.getEventSubmissions(req,res))
+submissionRoute.get('/submission/conference', AuthAPIKey, (req:Request, res:Response)=>submissionController.getConferenceSubmissions(req,res))
+
+
 submissionRoute.get('/submission/stat', AuthAPIKey, (req:Request, res:Response)=>submissionController.getSubmissionStat(req, res));
 
 

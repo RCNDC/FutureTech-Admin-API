@@ -99,6 +99,16 @@ export class SubmissionsController {
         res.status(200).json({ message: 'Submission fetched', data: submissions });
     }
 
+    async getEventSubmissions(req: Request, res: Response){
+        const submissions = await this.submissionService.getEventAttendeeSubmissions();
+        res.status(200).json({ message: 'Submission fetched', data: submissions });
+    }
+    async getConferenceSubmissions(req: Request, res: Response){
+        const submissions = await this.submissionService.getConferenceAttendeeSubmissions();
+        res.status(200).json({ message: 'Submission fetched', data: submissions });
+    }
+
+
     async getSubmissionStat(req:Request, res: Response){
         const totalNGOSubmission = await this.submissionService.getNGOSubmissions() || [];
         const totalLocalCompanySubmission = await this.submissionService.getLocalCompanySubmissions() || [];

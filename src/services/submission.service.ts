@@ -7,7 +7,9 @@ import { ngoSubmission,
     localCompanySubmissionById,
     internationalCompanySubmissionById,
     embassySubmissionById,
-    startupSubmissionById
+    startupSubmissionById,
+    eventAttendeeSubmission,
+    conferenceAttendeeSubmission
 } from '@prisma/client/sql'
 
 import { db } from "../util/db";
@@ -81,6 +83,23 @@ export class SubmissionService {
         }
 
 
+    }
+
+    async getEventAttendeeSubmissions(){
+        try{
+            const submissions = await db.$queryRawTyped(eventAttendeeSubmission());
+            return CastBigIntFromJson(submissions);
+        }catch(err){
+            logger.error(err+'');
+        }
+    }
+    async getConferenceAttendeeSubmissions(){
+        try{
+            const submissions = await db.$queryRawTyped(conferenceAttendeeSubmission());
+            return CastBigIntFromJson(submissions);
+        }catch(err){
+            logger.error(err+'');
+        }
     }
     async getEmabassySubmissions() {
         try{
