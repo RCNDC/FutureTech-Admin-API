@@ -92,6 +92,37 @@ export class UserService{
         return newUser;
     }
 
+    async deleteUser(userId: string): Promise<User> {
+        logger.info('Deleting user with id', userId);
+        if (!userId) {
+            throw new Error("User id is missing");
+        }
+        const deletedUser = await db.dashboard_user.delete({
+            where: {
+                 id: userId
+             }
+        });
+        logger.info('User deleted successfully', deletedUser);
+        return deletedUser;
+    }
+
+    async editUser(userId: string, data: User): Promise<User> {
+      logger.info('Editing user with id', userId);
+      if (!userId) {
+        throw new Error("User id is missing")
+      }
+      const updatedUser = await db.dashboard_user.update({
+        where: {
+          id: userId
+        },
+        data: {
+          isLocked: data.isLocked ? 1 : 0
+        }
+      });
+      logger.info('User edited successfully', updatedUser);
+      return updatedUser;
+    }
+
     async sendResetEmail(email:string){
         try{
             const resetToken = this.jwtService.sign({userId: await generateId(), email}, 86400)

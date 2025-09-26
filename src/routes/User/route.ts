@@ -14,6 +14,8 @@ userRoutes.get('/me', [AuthAPIKey, AuthGuard], (req:Request, res:Response)=>user
 
 userRoutes.get('/getAllUsers', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => userController.getAllUsers(req, res));
 userRoutes.post('/createUser', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => userController.createUser(req, res));
+userRoutes.delete('/:id', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => userController.deleteUser(req, res));
+userRoutes.patch('/:id', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => userController.editUser(req, res));
 
 // userRoutes.get('/getAllUsers', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => userController.getAllUsers(req, res));
 
