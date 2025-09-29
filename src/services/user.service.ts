@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import forgotEmailTemplate from "../mail/templates/forgotpassword";
 import { User } from "../types/user";
 import { db } from "../util/db";
@@ -97,13 +98,21 @@ export class UserService{
         if (!userId) {
             throw new Error("User id is missing");
         }
-        const deletedUser = await db.dashboard_user.delete({
-            where: {
-                 id: userId
-             }
-        });
-        logger.info('User deleted successfully', deletedUser);
-        return deletedUser;
+        try {
+            const deletedUser = await db.dashboard_user.delete({
+                where: {
+                    id: userId
+                }
+            });
+            logger.info('User deleted successfully', deletedUser);
+            return deletedUser;
+        } catch (e) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                logger.error(e);
+                throw new Error("Something went wrong. Please try again");
+            }
+            throw e;
+        }
     }
 
     async editUser(userId: string, data: User): Promise<User> {
@@ -111,16 +120,24 @@ export class UserService{
       if (!userId) {
         throw new Error("User id is missing")
       }
-      const updatedUser = await db.dashboard_user.update({
-        where: {
-          id: userId
-        },
-        data: {
-          isLocked: data.isLocked ? 1 : 0
+      try {
+          const updatedUser = await db.dashboard_user.update({
+            where: {
+              id: userId
+            },
+            data: {
+              isLocked: data.isLocked ? 1 : 0
+            }
+          });
+          logger.info('User edited successfully', updatedUser);
+          return updatedUser;
+      } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            logger.error(e);
+            throw new Error("Something went wrong. Please try again");
         }
-      });
-      logger.info('User edited successfully', updatedUser);
-      return updatedUser;
+        throw e;
+      }
     }
 
     async sendResetEmail(email:string){
