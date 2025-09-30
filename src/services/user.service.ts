@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import forgotEmailTemplate from "../mail/templates/forgotpassword";
 import { User } from "../types/user";
 import { db } from "../util/db";
@@ -107,7 +107,7 @@ export class UserService{
             logger.info('User deleted successfully', deletedUser);
             return deletedUser;
         } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            if (e instanceof PrismaClientKnownRequestError) {
                 logger.error(e);
                 throw new Error("Something went wrong. Please try again");
             }
@@ -132,7 +132,7 @@ export class UserService{
           logger.info('User edited successfully', updatedUser);
           return updatedUser;
       } catch (e) {
-        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e instanceof PrismaClientKnownRequestError) {
             logger.error(e);
             throw new Error("Something went wrong. Please try again");
         }
