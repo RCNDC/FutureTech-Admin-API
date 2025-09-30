@@ -1,3 +1,4 @@
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import forgotEmailTemplate from "../mail/templates/forgotpassword";
 import { User } from "../types/user";
 import { db } from "../util/db";
@@ -91,6 +92,53 @@ export class UserService{
             }
         });
         return newUser;
+    }
+
+    async deleteUser(userId: string): Promise<User> {
+        logger.info('Deleting user with id', userId);
+        if (!userId) {
+            throw new Error("User id is missing");
+        }
+        try {
+            const deletedUser = await db.dashboard_user.delete({
+                where: {
+                    id: userId
+                }
+            });
+            logger.info('User deleted successfully', deletedUser);
+            return deletedUser;
+        } catch (e) {
+            if (e instanceof PrismaClientKnownRequestError) {
+                logger.error(e);
+                throw new Error("Something went wrong. Please try again");
+            }
+            throw e;
+        }
+    }
+
+    async editUser(userId: string, data: User): Promise<User> {
+      logger.info('Editing user with id', userId);
+      if (!userId) {
+        throw new Error("User id is missing")
+      }
+      try {
+          const updatedUser = await db.dashboard_user.update({
+            where: {
+              id: userId
+            },
+            data: {
+              isLocked: data.isLocked ? 1 : 0
+            }
+          });
+          logger.info('User edited successfully', updatedUser);
+          return updatedUser;
+      } catch (e) {
+        if (e instanceof PrismaClientKnownRequestError) {
+            logger.error(e);
+            throw new Error("Something went wrong. Please try again");
+        }
+        throw e;
+      }
     }
 
     async sendResetEmail(email:string){

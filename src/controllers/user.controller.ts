@@ -92,6 +92,29 @@ export class UserController{
         }
     }
 
+    async editUser(req: Request, res: Response) {
+        try {
+            const { id } = req.params;
+            const updatedUser = await this.userService.editUser(id, req.body);
+            res.status(200).json({ message: 'user updated successfully', data: updatedUser });
+        } catch (error) {
+            logger.error(error);
+            res.status(400).json({ message: (error as Error).message });
+        }
+    }
+
+    async deleteUser(req: Request, res: Response) {
+        logger.info('Delete user request received', req.params.id);
+        try {
+            const { id } = req.params;
+            const deletedUser = await this.userService.deleteUser(id);
+            res.status(200).json({ message: 'User deleted successfully', data: deletedUser });
+        } catch (error) {
+            logger.error(error);
+            res.status(400).json({ message: (error as Error).message });
+        }
+    }
+
     async me(req:Request, res:Response){
         try{
             const user = req.user;
