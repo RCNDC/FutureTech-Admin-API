@@ -1,6 +1,6 @@
 import { followupnotes } from "@prisma/client";
 import { FollowUpNoteDto, FollowUpNoteUpdateDto } from "../types/followup";
-import { db } from "../util/db";
+import { db } from "../util/config/db";
 import { generateId } from "../util/generateId";
 import logger from "../util/logger";
 

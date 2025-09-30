@@ -4,6 +4,8 @@ export type AttendeeDTO={
     fullname:string;
     email:string;
     phone:string;
+    ticket:string;
+    entryId?:string;
 }
 
 

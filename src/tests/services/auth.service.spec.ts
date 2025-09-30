@@ -2,7 +2,7 @@ import { AuthService } from '../../services/auth.service';
 import { JwtService } from '../../services/jwt.service'; 
 import { generateId } from '../../util/generateId';
 import { genSaltSync, hashSync } from 'bcrypt';
-import { db } from '../../util/db'; 
+import { db } from '../../util/config/db'; 
 import logger from '../../util/logger'; 
 import { describe, beforeEach, jest, it, expect} from '@jest/globals';
 
@@ -12,7 +12,7 @@ import { describe, beforeEach, jest, it, expect} from '@jest/globals';
 jest.mock('../../services/jwt.service');
 jest.mock('../../util/generateId');
 jest.mock('bcrypt');
-jest.mock('../../util/db', () => ({
+jest.mock('../../util/config/db', () => ({
     dashboard_user: {
         create: jest.fn(),
     },

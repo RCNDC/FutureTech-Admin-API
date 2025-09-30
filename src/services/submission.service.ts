@@ -12,7 +12,7 @@ import { ngoSubmission,
     conferenceAttendeeSubmission
 } from '@prisma/client/sql'
 
-import { db } from "../util/db";
+import { db } from "../util/config/db";
 import { CastBigIntFromJson } from '../util/parsejson';
 import logger from '../util/logger';
 

@@ -24,6 +24,6 @@ FROM
     LEFT JOIN cte_submissions as t5 ON t1.entry_id = t5.entry_id
     AND t5.meta_key = 'select-3'
 WHERE
-    t1.meta_key = 'name-1' AND t5.meta_value = 'Event' AND t1.entry_id = ? 
+    t1.meta_key = 'name-1' AND t5.meta_value = 'Event' AND t1.entry_id IN (?) 
 GROUP BY
     t1.entry_id;

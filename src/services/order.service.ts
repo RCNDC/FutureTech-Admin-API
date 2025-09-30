@@ -1,6 +1,6 @@
 import { PrismaClientInitializationError, PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { OrderDto } from "../types/order";
-import { db } from "../util/db";
+import { db } from "../util/config/db";
 import { generateId, generateOrder } from "../util/generateId";
 import logger from "../util/logger";
 
@@ -18,7 +18,7 @@ export class OrderService {
                 }
             });
             
-            if (order) throw new Error('order already exists. Please check your email');
+            if (order) return order;
 
             const newOrder = await db.orders.create({
                 data: {

@@ -1,6 +1,6 @@
 import type { dashboard_user, ticket_db } from "@prisma/client";
 import logger from "../util/logger";
-import { db } from "../util/db";
+import { db } from "../util/config/db";
 import { v4 as uuidv4 } from "uuid";
 import { generateId } from "../util/generateId";
 import { TicketDto } from "../types/ticketdto";

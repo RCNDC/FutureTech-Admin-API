@@ -1,4 +1,4 @@
-import { db } from "../util/db";
+import { db } from "../util/config/db";
 import logger from "../util/logger";
 
 export class CheckInService{

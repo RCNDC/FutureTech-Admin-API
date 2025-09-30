@@ -9,6 +9,7 @@ import { MailService } from "../services/mail.service";
 import { Invitation } from "../mail/templates/invitation";
 import fs from 'fs/promises';
 import { PrismaClientInitializationError } from "@prisma/client/runtime/library";
+import { addToMailQueue } from "../workers/mail.worker";
 export class AttendeeController {
     private attendeeService;
     private orderService;
@@ -19,7 +20,7 @@ export class AttendeeController {
         this.mailService = new MailService();
     }
 
-    async createAttendee(req: Request<AttendeeDTO>, res: Response) {
+    async createAttendee(req: Request, res: Response) {
         const attendee = req.body;
         try {
             if (!attendee) {
@@ -61,6 +62,41 @@ export class AttendeeController {
             res.status(400).json({ message: 'unable to create order' });
         }
 
+    }
+
+    async createBulkAttendees(req: Request<{}, any, {attendees: AttendeeDTO[]}>, res: Response){
+        const attendees = req.body.attendees;
+        try{
+            if(!attendees || !Array.isArray(attendees)){
+                logger.error('malformed data or missing values')
+                res.status(400).json({message: 'malformed data or missing values'});
+                return;
+            }
+            const newAttendees = [];
+            for(const attendee of attendees){
+                try{
+                    const newAttendee = await this.attendeeService.createAttendee(attendee);
+                    if(newAttendee){
+                         const order: OrderDto = {
+                            attendeeId: newAttendee.id,
+                            ticket: attendee.ticket || "Event",
+                        }
+                        
+                        const newOrder = await this.orderService.createOrder(order);
+                        await QRCode.toFile(newOrder.orderNo + '.png', newOrder.orderNo);
+                        addToMailQueue({to:newAttendee.email, subject:'Event Invitation', body:'', html:Invitation(newAttendee.fullname, newAttendee.email, newAttendee.phone, 'qrcode.png'), attachments:[{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]});
+                        res.status(200).json({ data: newOrder, message: 'Order created Successfully' });
+                        newAttendees.push(newAttendee);
+                    }
+                }catch(error){
+                    logger.error(error);
+                }
+            }
+            res.status(200).json({data: newAttendees, message: 'Attendees created Successfully'});
+        }catch(error){
+            logger.error(error);
+            res.status(500).json({message: 'unable to create attendees'});
+        }
     }
 
     async getAllAttendees(req:Request, res:Response){

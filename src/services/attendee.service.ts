@@ -1,5 +1,5 @@
 import { AttendeeDTO, AttendeeFilterArgs } from "../types/attendee";
-import { db } from "../util/db";
+import { db } from "../util/config/db";
 import { generateId } from "../util/generateId";
 import logger from "../util/logger";
 

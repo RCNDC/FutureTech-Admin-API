@@ -1,7 +1,7 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import forgotEmailTemplate from "../mail/templates/forgotpassword";
 import { User } from "../types/user";
-import { db } from "../util/db";
+import { db } from "../util/config/db";
 import { generateId } from "../util/generateId";
 import logger from "../util/logger";
 import { JwtService } from "./jwt.service";

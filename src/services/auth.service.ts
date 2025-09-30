@@ -1,7 +1,7 @@
 import { SignupDto } from "../types/signupdto";
 import logger from "../util/logger";
 import { JwtService } from "./jwt.service";
-import { db } from "../util/db";
+import { db } from "../util/config/db";
 import type { dashboard_user } from "@prisma/client";
 import { generateId } from "../util/generateId";
 import {hashSync, compareSync, genSaltSync} from 'bcrypt'
