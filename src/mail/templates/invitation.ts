@@ -228,6 +228,6 @@ export const Invitation = (fullName: string, email:string, phone:string, qrcode:
     </table>
     <!--/$-->
   </body>
-</html>
+</html> 
 `
 }

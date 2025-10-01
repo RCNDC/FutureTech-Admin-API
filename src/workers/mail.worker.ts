@@ -2,7 +2,6 @@ import { Job, Queue, Worker } from "bullmq";
 import redis from "../util/config/redis";
 import { MailService } from "../services/mail.service";
 import { MailOptions } from "../types/mail";
-import fs from 'fs/promises';
 import logger from "../util/logger";
 
 const mailQueue = new Queue("mailQueue", {
