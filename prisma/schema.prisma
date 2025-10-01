@@ -1036,6 +1036,18 @@ model followupnotes {
   isCompleted  Int      @default(0)
 }
 
+model messages {
+  id         String          @id @db.VarChar(255)
+  sender     String          @db.VarChar(255)
+  reciver    String          @db.VarChar(20)
+  title      String          @db.VarChar(10)
+  body       String          @db.Text
+  attachedTo Int
+  sentBy     String?         @db.VarChar(255)
+  sentAt     DateTime        @default(now()) @db.DateTime(0)
+  status     messages_status @default(Pending)
+}
+
 enum wpjm_blpwp_stats_action {
   click
   hover
@@ -1092,6 +1104,12 @@ enum followuphistory_status {
   Created
   Closed
   Open
+}
+
+enum messages_status {
+  Pending
+  Completed
+  Failed
 }
 
 enum wpjm_wftrafficrates_hitType {

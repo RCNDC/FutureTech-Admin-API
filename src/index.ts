@@ -10,6 +10,7 @@ import ticketRoutes from './routes/Ticket/route';
 import submissionRoute from './routes/Submission/route';
 import followRoute from './routes/FollowUp/route';
 import followupNoteRoute from './routes/FollowUpNote/route';
+import mailRoute from './routes/Mail/route';
 
 const app = express();
 
@@ -33,7 +34,7 @@ app.use('/api/ticket', ticketRoutes);
 app.use('/api/register', submissionRoute);
 app.use('/api/submission', followRoute);
 app.use('/api/progress', followupNoteRoute);
-
+app.use('/api/mail', mailRoute);
 app.get('/', (req, res) => {
   res.send('Hello, World!');
 });

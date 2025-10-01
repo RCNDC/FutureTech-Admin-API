@@ -17,9 +17,9 @@ export class MailService{
                 subject: subject || 'No Subject',
                 text: body || 'No Content',
                 html: htmlContent,
-                attachments: attachments
+                attachments: attachments || [] as Attachment[],
             });
-            return sent.response
+            return sent.response;
         }catch(err){
             logger.error('Error sending email: ' + (err as Error).message);
             throw new Error('Error sending email: ' + (err as Error).message)    
