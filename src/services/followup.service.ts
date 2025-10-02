@@ -87,5 +87,13 @@ export class FollowUpService{
 
 
     }
+    async getAllFollowUp(){
+        try{
+            const followUps = await db.followup.findMany();
+            return followUps;
+        }catch(err){
+            logger.error(err+'');
+        }
+    }
     
 }

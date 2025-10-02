@@ -15,14 +15,37 @@ import { ngoSubmission,
 import { db } from "../util/config/db";
 import { CastBigIntFromJson } from '../util/parsejson';
 import logger from '../util/logger';
+import { FollowUpService } from './followup.service';
 
 export class SubmissionService {
-    constructor() { }
-
+    private followUpService;
+    constructor() { 
+        this.followUpService = new FollowUpService();
+        
+    }
+    async sortByCompletedSubmissions(submissions:any[]){
+        const followUps = await this.followUpService.getAllFollowUp();
+        if(followUps?.length === 0 || !followUps){
+                return submissions;
+            }
+        const completedFollowUps = followUps.filter((f) => f.status === 'Completed');
+            // Create a Set of entry_ids with completed followups for quick lookup
+            const completedEntryIds = new Set(completedFollowUps.map((f) => f.entry_id));
+            // Sort submissions: those with completed followups come last
+            return submissions.sort((a, b) => {
+                console.log(b.entry_id.toString());
+                const aCompleted = completedEntryIds.has(parseInt(a.entry_id.toString()));
+                const bCompleted = completedEntryIds.has(parseInt(b.entry_id.toString()));
+                console.log(aCompleted, bCompleted);
+                if (aCompleted === bCompleted) return 0;
+                return aCompleted ? 1 : -1;
+            });
+    }
     async getNGOSubmissions() {
         try{
             const submissions = await db.$queryRawTyped(ngoSubmission());
-            return CastBigIntFromJson(submissions)
+            const sortedSub = await this.sortByCompletedSubmissions(submissions);
+            return CastBigIntFromJson(sortedSub)
 
         }catch(err){
             logger.error(err+'');
@@ -44,7 +67,8 @@ export class SubmissionService {
     async getLocalCompanySubmissions() {
         try{
             const submissions = await db.$queryRawTyped(localCompanySubmission());
-            return CastBigIntFromJson(submissions)
+            const sortedSub = await this.sortByCompletedSubmissions(submissions);
+            return CastBigIntFromJson(sortedSub)
 
         }catch(err){
             logger.error(err+'');
@@ -65,7 +89,8 @@ export class SubmissionService {
     async getInternationalCompanySubmissions() {
         try{
             const submissions = await db.$queryRawTyped(internationalCompanySubmission());
-            return CastBigIntFromJson(submissions)
+            const sortedSub = await this.sortByCompletedSubmissions(submissions);
+            return CastBigIntFromJson(sortedSub)
 
         }catch(err){
             logger.error(err+'');
@@ -76,6 +101,7 @@ export class SubmissionService {
     async getInternationalCompanySubmission(entry_id: bigint) {
         try{
             const submission = await db.$queryRawTyped(internationalCompanySubmissionById(entry_id));
+            
             return CastBigIntFromJson(submission)
 
         }catch(err){
@@ -96,6 +122,7 @@ export class SubmissionService {
     async getConferenceAttendeeSubmissions(){
         try{
             const submissions = await db.$queryRawTyped(conferenceAttendeeSubmission());
+            
             return CastBigIntFromJson(submissions);
         }catch(err){
             logger.error(err+'');
@@ -104,7 +131,8 @@ export class SubmissionService {
     async getEmabassySubmissions() {
         try{
             const submissions = await db.$queryRawTyped(embassySubmission());
-            return CastBigIntFromJson(submissions)
+            const sortedSub = await this.sortByCompletedSubmissions(submissions);
+            return CastBigIntFromJson(sortedSub)
 
         }catch(err){
             logger.error(err+'');
@@ -126,7 +154,8 @@ export class SubmissionService {
     async getStartupSubmissions() {
         try{
             const submissions = await db.$queryRawTyped(startupSubmission());
-            return CastBigIntFromJson(submissions)
+            const sortedSub = await this.sortByCompletedSubmissions(submissions);
+            return CastBigIntFromJson(sortedSub)
 
         }catch(err){
             logger.error(err+'');
