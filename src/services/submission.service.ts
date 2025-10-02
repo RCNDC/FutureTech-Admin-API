@@ -33,10 +33,10 @@ export class SubmissionService {
             const completedEntryIds = new Set(completedFollowUps.map((f) => f.entry_id));
             // Sort submissions: those with completed followups come last
             return submissions.sort((a, b) => {
-                console.log(b.entry_id.toString());
+                
                 const aCompleted = completedEntryIds.has(parseInt(a.entry_id.toString()));
                 const bCompleted = completedEntryIds.has(parseInt(b.entry_id.toString()));
-                console.log(aCompleted, bCompleted);
+               
                 if (aCompleted === bCompleted) return 0;
                 return aCompleted ? 1 : -1;
             });
