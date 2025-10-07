@@ -7,7 +7,7 @@ dist/
 .env.development.local
 /src/generated/prisma
 *.log
-
+uploads/
 
 mail.png
 qrcodes

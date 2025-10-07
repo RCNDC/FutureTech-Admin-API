@@ -1048,6 +1048,26 @@ model messages {
   status     messages_status @default(Pending)
 }
 
+model Role {
+  id          Int       @id @default(autoincrement())
+  role        Role_role
+  createdBy   String    @db.VarChar(255)
+  createdDate DateTime  @db.DateTime(6)
+  updatedDate DateTime  @db.DateTime(6)
+}
+
+model partners {
+  id             String   @id @db.VarChar(255)
+  fullName       String   @db.VarChar(100)
+  companyName    String   @db.VarChar(100)
+  email          String   @db.VarChar(100)
+  phone          String   @db.VarChar(100)
+  areaOfInterest String   @db.VarChar(100)
+  license        String   @db.VarChar(255)
+  createdDate    DateTime @default(now()) @db.DateTime(0)
+  updateDate     DateTime @default(now()) @db.DateTime(0)
+}
+
 enum wpjm_blpwp_stats_action {
   click
   hover
@@ -1110,6 +1130,13 @@ enum messages_status {
   Pending
   Completed
   Failed
+}
+
+enum Role_role {
+  System
+  Admin
+  Marketer
+  Ticket_Agent @map("Ticket Agent")
 }
 
 enum wpjm_wftrafficrates_hitType {

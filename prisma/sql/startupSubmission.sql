@@ -11,7 +11,9 @@ SELECT t1.entry_id,
        t1.meta_value as 'fullName', 
        t2.meta_value as email, 
        t3.meta_value as 'phoneNo', 
-       t5.meta_value as 'startupName', 
+       t5.meta_value as 'startupName',
+       t6.meta_value as 'stage',
+       t7.meta_value as 'booth',
        t1.date_created as 'registeredDate'
 FROM
     cte_submissions as t1
@@ -23,6 +25,10 @@ FROM
     and t4.meta_key = 'select-7'
     LEFT JOIN cte_submissions as t5 ON t1.entry_id = t5.entry_id
     and t5.meta_key = 'name-2'
+    LEFT JOIN cte_submissions as t6 ON t1.entry_id = t6.entry_id
+    and t6.meta_key = 'checkbox-3'
+    LEFT JOIN cte_submissions as t7 ON t1.entry_id = t7.entry_id
+    and t7.meta_key = 'radio-9'
 WHERE
     t1.meta_key = 'name-1' AND (t4.meta_value = 'Local Startup')
 GROUP BY

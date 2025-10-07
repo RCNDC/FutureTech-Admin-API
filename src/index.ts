@@ -11,6 +11,8 @@ import submissionRoute from './routes/Submission/route';
 import followRoute from './routes/FollowUp/route';
 import followupNoteRoute from './routes/FollowUpNote/route';
 import mailRoute from './routes/Mail/route';
+import uploadRouter from './routes/Uploads/route';
+import partnerRoute from './routes/Partner/route';
 
 const app = express();
 
@@ -35,6 +37,8 @@ app.use('/api/register', submissionRoute);
 app.use('/api/submission', followRoute);
 app.use('/api/progress', followupNoteRoute);
 app.use('/api/mail', mailRoute);
+app.use('/api/partner', partnerRoute);
+app.use('/api/upload', uploadRouter);
 app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
