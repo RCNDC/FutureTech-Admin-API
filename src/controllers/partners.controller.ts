@@ -29,6 +29,11 @@ export class PartnersController {
         .on('end', ()=>{
             if(!result[0]['company name'] || !result[0]['company email'] || !result[0]['phone'] || !result[0]['interset Area'] || !result[0]['name']){
                 res.status(400).json({message: 'Invaild file'})
+                fs.rm(filePath,(err)=>{
+                    if(err){
+                        logger.error(`unable to remove file ${filePath} ${err.message}`)
+                    }
+                })
                 return;
             }
             result.forEach(async(element) => {
