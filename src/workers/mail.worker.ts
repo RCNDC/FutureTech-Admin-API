@@ -19,7 +19,7 @@ export const mailWorker = new Worker("mailQueue", async(job:Job)=>{
         //send mail logic here
         logger.info(`message sent to ${job.data.to}`)
         //simulate mail sending delay
-       
+        return sent;
         
     }
 },{
@@ -27,6 +27,7 @@ export const mailWorker = new Worker("mailQueue", async(job:Job)=>{
 });
 
 mailWorker.on("completed", (job)=>{
+    
     logger.info(`Job ${job.id} completed`);
     
     

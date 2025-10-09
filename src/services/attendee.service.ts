@@ -37,7 +37,7 @@ export class AttendeeService{
             
             return newAttendee;
         }catch(error){
-            logger.error(error);
+            logger.error(error+' ');
             throw new Error('something went wrong');
         }        
 

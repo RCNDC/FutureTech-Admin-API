@@ -8,5 +8,6 @@ const mailController = new MailController();
 const mailRoute = Router();
 
 mailRoute.post('/sendmail', [AuthAPIKey, AuthGuard], (req:Request, res:Response)=>mailController.sendMail(req, res));
+mailRoute.get('/messages', [AuthAPIKey, AuthGuard], (req:Request, res:Response)=>mailController.getMessages(req, res));
 
 export default mailRoute;

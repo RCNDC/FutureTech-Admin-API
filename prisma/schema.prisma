@@ -978,6 +978,7 @@ model dashboard_user {
   updatedAt DateTime @default(now()) @db.DateTime(0)
   isLocked  Int      @default(0)
   isNew     Int      @default(1)
+  roleId    Int?
 }
 
 model ticket_db {
@@ -1051,21 +1052,23 @@ model messages {
 model Role {
   id          Int       @id @default(autoincrement())
   role        Role_role
+  userId      String    @unique(map: "userId") @db.VarChar(255)
   createdBy   String    @db.VarChar(255)
   createdDate DateTime  @db.DateTime(6)
+  updateBy    String    @db.VarChar(255)
   updatedDate DateTime  @db.DateTime(6)
 }
 
 model partners {
-  id             String   @id @db.VarChar(255)
-  fullName       String   @db.VarChar(100)
-  companyName    String   @db.VarChar(100)
-  email          String   @db.VarChar(100)
-  phone          String   @db.VarChar(100)
-  areaOfInterest String   @db.VarChar(100)
-  license        String   @db.VarChar(255)
-  createdDate    DateTime @default(now()) @db.DateTime(0)
-  updateDate     DateTime @default(now()) @db.DateTime(0)
+  id          String   @id @db.VarChar(255)
+  fullName    String   @db.VarChar(100)
+  companyName String   @db.VarChar(100)
+  email       String   @db.VarChar(100)
+  phoneNo     String   @db.VarChar(100)
+  interest    String   @db.VarChar(100)
+  license     String   @db.VarChar(255)
+  createdDate DateTime @default(now()) @db.DateTime(0)
+  updateDate  DateTime @default(now()) @db.DateTime(0)
 }
 
 enum wpjm_blpwp_stats_action {

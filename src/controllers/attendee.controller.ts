@@ -9,7 +9,8 @@ import { MailService } from "../services/mail.service";
 import { Invitation } from "../mail/templates/invitation";
 import fs from 'fs/promises';
 import { PrismaClientInitializationError } from "@prisma/client/runtime/library";
-import { addToMailQueue } from "../workers/mail.worker";
+import { addToMailQueue, mailWorker } from "../workers/mail.worker";
+import { SentMessageInfo } from "nodemailer";
 export class AttendeeController {
     private attendeeService;
     private orderService;
@@ -85,11 +86,18 @@ export class AttendeeController {
                         const newOrder = await this.orderService.createOrder(order);
                         await QRCode.toFile(newOrder.orderNo + '.png', newOrder.orderNo);
                         addToMailQueue({to:newAttendee.email, subject:'Event Invitation', body:'', html:Invitation(newAttendee.fullname, newAttendee.email, newAttendee.phone, 'qrcode.png'), attachments:[{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]});
-                        res.status(200).json({ data: newOrder, message: 'Order created Successfully' });
+                        mailWorker.on('completed', (job,result)=>{
+                            if(result && Array.isArray(result.rejected) && result.rejected.length > 0){
+                                console.log(result)
+                            }
+                            fs.rm(newOrder.orderNo+'.png', {retryDelay: 1000})
+                        })
+                     
+                        //res.status(200).json({ data: newOrder, message: 'Order created Successfully' });
                         newAttendees.push(newAttendee);
                     }
                 }catch(error){
-                    logger.error(error);
+                    logger.error(error+'');
                 }
             }
             res.status(200).json({data: newAttendees, message: 'Attendees created Successfully'});

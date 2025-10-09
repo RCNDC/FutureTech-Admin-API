@@ -27,6 +27,7 @@ export class AuthService{
             email: signupDto.email,
             password: hashSync(signupDto.password, genSaltSync(10)),
             createdAt: new Date(),
+            roleId: 0,
             updatedAt: new Date(),
             isLocked: 0,
             isNew: 1
