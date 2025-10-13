@@ -11,6 +11,8 @@ import fs from 'fs/promises';
 import { PrismaClientInitializationError } from "@prisma/client/runtime/library";
 import { addToMailQueue, mailWorker } from "../workers/mail.worker";
 import { SentMessageInfo } from "nodemailer";
+import defaultTemplate from "../mail/templates/defaulttemplate";
+import TicketTemplate from "../mail/templates/ticket";
 export class AttendeeController {
     private attendeeService;
     private orderService;
@@ -41,7 +43,7 @@ export class AttendeeController {
                 if (newOrder) {
                     
                         const test = await QRCode.toFile(newOrder.orderNo + '.png', newOrder.orderNo);
-                        await this.mailService.sendMail(newAttendee.email, 'Event Invitation', '', Invitation(newAttendee.fullname, newAttendee.email, newAttendee.phone, 'qrcode.png'), [{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]);
+                        await this.mailService.sendMail(newAttendee.email, 'Event Invitation', 'This is you invitation ticket to the event', Invitation(newAttendee.fullname, newAttendee.email, newAttendee.phone, 'qrcode.png'), [{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]);
                         fs.rm(newOrder.orderNo + '.png', { maxRetries: 3 });
                         res.status(200).json({ data: newOrder, message: 'Order created Successfully' });
                         return;
@@ -80,12 +82,12 @@ export class AttendeeController {
                     if(newAttendee){
                          const order: OrderDto = {
                             attendeeId: newAttendee.id,
-                            ticket: attendee.ticket || "Event",
+                            ticket: attendee.ticketType || "Event",
                         }
                         
                         const newOrder = await this.orderService.createOrder(order);
                         await QRCode.toFile(newOrder.orderNo + '.png', newOrder.orderNo);
-                        addToMailQueue({to:newAttendee.email, subject:'Event Invitation', body:'', html:Invitation(newAttendee.fullname, newAttendee.email, newAttendee.phone, 'qrcode.png'), attachments:[{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]});
+                        addToMailQueue({to:newAttendee.email, subject:'Event Invitation', body:'', html:defaultTemplate('', '', TicketTemplate(newAttendee.fullname, newAttendee.email, newAttendee.phone)), attachments:[{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]});
                         mailWorker.on('completed', (job,result)=>{
                             if(result && Array.isArray(result.rejected) && result.rejected.length > 0){
                                 console.log(result)

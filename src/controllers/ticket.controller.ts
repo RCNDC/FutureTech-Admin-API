@@ -18,7 +18,7 @@ export class TicketController {
         return;
       }
       const ticket = await this.ticketService.createTicket(ticketDto);
-      return res.status(201).json(ticket);
+      return res.status(201).json({message: 'ticket created', data:ticket});
     } catch (error) {
       res.status(400).json({ message: error });
     }
@@ -48,6 +48,17 @@ export class TicketController {
     }
   }
 
+  async getTickets(req:Request, res:Response){
+    try{
+      const tickets = await this.ticketService.getTickets();
+      res.status(200).json({message:'ticket fetched', data: tickets});
+      return;
+    }catch(err){
+      logger.error(''+err);
+      res.status(500).json({message:'something went wrong. Please try again'});
+    }
+  }
+
   async deleteTicket(
     req: Request<{ id: string }, any, {}, any>,
     res: Response,
@@ -66,4 +77,4 @@ export class TicketController {
   }
 }
 
-export default new TicketController();
+export default TicketController;

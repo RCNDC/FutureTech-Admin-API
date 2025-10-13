@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { CheckInService } from "../services/checkin.service";
 import { CheckInDto } from "../types/order";
 import logger from "../util/logger";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export class CheckInController{
     private checkInService;
@@ -27,7 +28,10 @@ export class CheckInController{
             }
         }catch(error){
             logger.error(error);
-            res.json(400).json({message: 'invalid code'});
+            if(error instanceof PrismaClientKnownRequestError){
+                res.status(400).json({message: 'invalid code'});
+            }
+            res.status(500).json({message:error});
         }
     }
 }

@@ -11,9 +11,10 @@ SELECT t1.entry_id,
        t1.meta_value as 'fullName', 
        t2.meta_value as email, 
        t3.meta_value as 'phoneNo', 
-       t4.meta_value as 'registerAs', 
+       t4.meta_value as 'registerAs',
        t1.date_created as 'registeredDate', 
-       t5.meta_value as 'companyName'
+       t5.meta_value as 'companyName',
+       t6.meta_value as 'companyEmail'
 FROM
     cte_submissions as t1
     LEFT JOIN cte_submissions as t2 ON t1.entry_id = t2.entry_id
@@ -24,6 +25,8 @@ FROM
     and t4.meta_key = 'select-7'
     LEFT JOIN cte_submissions as t5 ON t1.entry_id = t5.entry_id
     and t5.meta_key = 'text-7'
+    LEFT JOIN cte_submissions as t6 ON t1.entry_id = t6.entry_id
+    and t6.meta_key = 'email-2'
 WHERE
     t1.meta_key = 'name-1' AND (t4.meta_value = 'International Company')
 GROUP BY

@@ -27,6 +27,7 @@ SELECT t1.entry_id,
         t12.meta_value as 'interestType',
         t13.meta_value as 'pitchProduct',
         t14.meta_value as 'b2Schedule',
+        t16.meta_value as 'companyEmail',
         t1.date_created as 'registeredDate'
 FROM
     cte_submissions as t1
@@ -58,6 +59,8 @@ FROM
     and t14.meta_key = 'radio-5'
     LEFT JOIN cte_submissions as t15 ON t1.entry_id = t15.entry_id
     AND t15.meta_key = 'select-7'
+    LEFT JOIN cte_submissions as t16 ON t1.entry_id = t16.entry_id
+    AND t16.meta_key = 'email-2'
 WHERE
     t1.meta_key = 'name-1' AND t15.meta_value = 'International Company' AND t1.entry_id = ?
 GROUP BY

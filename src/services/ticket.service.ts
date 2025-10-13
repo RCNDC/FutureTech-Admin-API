@@ -51,6 +51,11 @@ export class TicketService {
     }
   }
 
+  async getTickets(){
+    const tickets = await db.ticket_db.findMany();
+    return tickets;
+  }
+
   async deleteTicket(id: string): Promise<void> {
     try {
       await db.ticket_db.delete({

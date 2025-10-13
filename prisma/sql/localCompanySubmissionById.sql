@@ -23,6 +23,7 @@ SELECT t1.entry_id,
        t13.meta_value as 'interest',
        t14.meta_value as 'numberOfAttendee',
 	   t15.meta_value as 'registerAs',
+       t16.meta_value as 'companyEmail',
 	   t1.date_created as 'registeredDate'
 FROM
     cte_submissions as t1
@@ -54,6 +55,8 @@ FROM
     and t14.meta_key = 'number-3'
     LEFT JOIN cte_submissions as t15 ON t1.entry_id = t15.entry_id
     AND t15.meta_key = 'select-7'
+    LEFT JOIN cte_submissions as t16 ON t1.entry_id = t16.entry_id
+    AND t16.meta_key = 'email-2'
 WHERE
     t1.meta_key = 'name-1' AND t15.meta_value = 'Local Company' AND t1.entry_id = ?
 GROUP BY
