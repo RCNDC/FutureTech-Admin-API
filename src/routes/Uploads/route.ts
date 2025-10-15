@@ -1,9 +1,11 @@
-import { Router } from "express";
+import { Request, Response, Router } from "express";
 import { upload } from "../../util/config/multer";
-import { partnerFileHandler } from "../../middlewares/fileHandler";
+import { fileParser } from "../../middlewares/fileParser";
+import { PartnersController } from "../../controllers/partners.controller";
 
 const uploadRouter = Router();
-
-uploadRouter.post('/partners', upload.single('file'), partnerFileHandler);
+const partnerController = new PartnersController();
+uploadRouter.post('/partners', [upload.single('file'), fileParser],(req:Request, res:Response)=>partnerController.uploadPartnersCSV(req, res));
+uploadRouter.post('/localcompany', upload.single('file'), )
 
 export default uploadRouter; 
