@@ -143,7 +143,7 @@ export class UserService{
 
     async sendResetEmail(email:string){
         try{
-            const resetToken = this.jwtService.sign({userId: await generateId(), email}, 86400)
+            const resetToken = this.jwtService.sign({userId: await generateId(), email:email, role: null}, 86400)
             const htmlContent = forgotEmailTemplate(email,`${process.env.FRONTEND_URL}/reset-password/${resetToken}`);
             await this.mailService.sendMail(email,"Forgot password", '',htmlContent);
             return 'success';
