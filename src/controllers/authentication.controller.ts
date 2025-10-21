@@ -16,7 +16,10 @@ export class AuthenticationController {
             if (!req.body) {
                 throw new Error('Credentials not provided');
             }
-            const signupDto: SignupDto = req.body;
+            const signupDto: SignupDto = {
+                ...req.body,
+                createdBy: req.user?.userId
+            };
             const tokens = await this.authService.signup(signupDto);
             response.cookie('refreshToken', tokens.refreshToken, {
                 httpOnly: true,
