@@ -3,6 +3,7 @@ import { addToMailQueue, mailWorker } from "../workers/mail.worker";
 import { MessageService } from "../services/message.service";
 import { Invitation } from "../mail/templates/invitation";
 import defaultTemplate from "../mail/templates/defaulttemplate";
+import logger from "../util/logger";
 
 export class MailController{
     private messageService;
@@ -30,6 +31,10 @@ export class MailController{
                         }
                     })
                 }
+                mailWorker.on('failed',(job,err)=>{
+                     this.messageService.updateMessageStatus(job?.data.id, 'Failed');
+                     logger.error(`job failed sending to ${job?.data.to}`)
+                })
             }
             //send email logic here
             res.status(200).json({message: 'emails sent successfully'});
