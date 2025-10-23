@@ -39,9 +39,8 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
 
         script: |
-          cd /opt/
+          cd ~/FutureTech-Admin-API/
           git pull origin main
-          cd /opt/FutureTech-Admin-API/
           echo ${{ secrets.DATABASE_URL }} >> .env
           echo ${{ secrets.API_KEY_VALUE }} >> .env
           echo ${{ secrets.FRONTEND_URL }} >> .env
