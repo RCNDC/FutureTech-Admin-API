@@ -53,7 +53,20 @@ If your project requires any configuration (e.g., environment variables, API key
 Example `.env` file:
 
 ```
-PORT=3000
+PORT=
+API_KEY_VALUE=
+NODE_ENV=
+DATABASE_URL=
+SHADOW_DATABASE_URL=
+JWT_SECRET=
+JWT_EXPIRES_IN=
+REFRESH_TOKEN_EXPIRES_IN=
+FRONTEND_URL=
+MAIL_HOST=
+MAIL_USER=
+MAIL_PASSWORD=
+MAIL_PORT=
+REDIS_URL=
 ```
 
 ## Scripts
