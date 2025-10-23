@@ -3,8 +3,7 @@ name: Node.js Test and Deploy to VPS
 on:
   push:
     branches:
-      - main
-      - dev  # This workflow runs on pushes to the 'main' branch.
+      - main  # This workflow runs on pushes to the 'main' branch.
 env:
   DATABASE_URL: ${{secrets.DATABASE_URL}}
 
@@ -23,15 +22,6 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-    
-    - name: Generate Prisma types
-      run: npx prisma generate
-
-    - name: Generate SQL types
-      run: npx prisma generate --sql
-
-    - name: Build project
-      run: npm run build
 
 
     - name: Deploy to VPS via SSH
@@ -49,10 +39,23 @@ jobs:
 
       # A list of commands to run on the VPS to pull code and restart the application.
         script: |
-          mkdir -p /opt/ && cd /opt/FutureTech-Admin-API/
+          cd /opt/
           git pull origin main
+          cd /opt/FutureTech-Admin-API/
+          echo ${{ secrets.DATABASE_URL }} >> .env
+          echo ${{ secrets.API_KEY_VALUE }} >> .env
+          echo ${{ secrets.FRONTEND_URL }} >> .env
+          echo ${{ secrets.JWT_EXPIRES_IN }} >> .env
+          echo ${{ secrets.JWT_SECRET }} >> .env
+          echo ${{ secrets.MAIL_HOST }} >> .env
+          echo ${{ secrets.MAIL_PASSWORD }} >> .env
+          echo ${{ secrets.MAIL_PORT }} >> .env
+          echo ${{ secrets.MAIL_USER }} >> .env
+          echo ${{ secrets.REFRESH_TOKEN_EXPIRES_IN }} >> .env
+          echo ${{ secrets.SHADOW_DATABASE_URL }} >> .env
           npm install --production && npx prisma generate && npx prisma generate --sql
           npm run build
+          pm2 start dist/index.js --name "futuretech-api" --listen 3000
 
 
         
