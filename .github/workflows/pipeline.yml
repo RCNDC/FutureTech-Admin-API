@@ -3,8 +3,8 @@ name: Node.js Test and Deploy to VPS
 on:
   push:
     branches:
-      - dev # This workflow runs on pushes to the 'main' branch.
-      - feature
+      - main
+      - dev  # This workflow runs on pushes to the 'main' branch.
 
 jobs:
   test_and_deploy:
@@ -21,6 +21,12 @@ jobs:
 
     - name: Install dependencies
       run: npm install
+    
+    - name: Generate Prisma types
+      run: npx prisma generate
+
+    - name: Generate SQL types
+      run: npx prisma generate --sql
 
     - name: Build project
       run: npm run build
@@ -34,12 +40,17 @@ jobs:
       # Your SSH username.
         username: ${{ secrets.VPS_USERNAME }}
 
+        password: ${{ secrets.SSH_PASSPHRASE }}
+
       # The SSH private key for authentication. This should also be a Secret.
         key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       # A list of commands to run on the VPS to pull code and restart the application.
         script: |
-          source /home/habeshgo/nodevenv/domains/api.futuretech.habesharunway.com/10/bin/activate && cd /home/habeshgo/domains/api.futuretech.habesharunway.com/FutureTech-Admin-API/
-          git pull origin dev
-          npm install --production
+          mkdir -p /opt/ && cd /opt/FutureTech-Admin-API/
+          git pull origin main
+          npm install --production && npx prisma generate && npx prisma generate --sql
+          npm run build
+
+
         
