@@ -17,6 +17,7 @@ SELECT t1.entry_id,
         t7.meta_value as 'attendPolicy',
         t8.meta_value as 'anyDelegation',
         t9.meta_value as 'numDelegation',
+        t10.meta_value as 'registeredAs',
         t1.date_created as 'registeredDate'
 FROM
     cte_submissions as t1

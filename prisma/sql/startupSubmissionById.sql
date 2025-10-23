@@ -20,6 +20,7 @@ SELECT t1.entry_id,
         t10.meta_value as 'stage',
         t11.meta_value as 'pitchdeck',
         t12.meta_value as 'appliedPegasus',
+        t13.meta_value as 'registeredAs',
         t1.date_created as 'registeredDate'
 FROM
     cte_submissions as t1
