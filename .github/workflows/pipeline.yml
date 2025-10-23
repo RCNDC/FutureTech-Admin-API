@@ -42,10 +42,7 @@ jobs:
           bash -l -c "
           cd ~/FutureTech-Admin-API/
           git pull origin main
-          
-          npm install --production && npx prisma generate && npx prisma generate --sql
-          npm run build
-          pm2 start dist/index.js --name "futuretech-api" --listen 3000
+          source ~/.nvm/nvm.sh && nvm use <your_node_version> && npm install --production &&  npx prisma generate && npx prisma generate --sql && npm run build && pm2 start dist/index.js --name "futuretech-api" --listen 3000
           "
 
 
