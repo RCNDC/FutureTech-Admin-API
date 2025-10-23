@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - dev  # This workflow runs on pushes to the 'main' branch.
+env:
+  DATABASE_URL: ${{secrets.DATABASE_URL}}
 
 jobs:
   test_and_deploy:
