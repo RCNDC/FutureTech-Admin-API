@@ -36,8 +36,13 @@ jobs:
 
       # The SSH private key for authentication. This should also be a Secret.
         key: ${{ secrets.SSH_PRIVATE_KEY }}
+    - name: Configure SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-      # A list of commands to run on the VPS to pull code and restart the application.
         script: |
           cd /opt/
           git pull origin main
