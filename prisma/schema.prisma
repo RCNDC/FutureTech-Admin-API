@@ -979,7 +979,11 @@ model dashboard_user {
   isLocked  Int      @default(0)
   isNew     Int      @default(1)
   roleId    Int?
-  Role      Role?
+  createdBy String?  @db.VarChar(255)
+  updatedBy String?  @db.VarChar(255)
+  Role      Role?    @relation(fields: [roleId], references: [id])
+
+  @@index([roleId], map: "dashboard_user_roleId_fkey")
 }
 
 model ticket_db {
@@ -1051,14 +1055,13 @@ model messages {
 }
 
 model Role {
-  id             Int            @id @default(autoincrement())
-  role           Role_role
-  userId         String         @unique(map: "userId") @db.VarChar(255)
-  createdBy      String         @db.VarChar(255)
-  createdDate    DateTime       @default(now()) @db.DateTime(6)
-  updatedBy      String         @db.VarChar(255)
-  updatedAt      DateTime       @db.DateTime(6)
-  dashboard_user dashboard_user @relation(fields: [userId], references: [id], onUpdate: Restrict, map: "Role_ibfk_1")
+  id             Int              @id @default(autoincrement())
+  name           String           @unique
+  createdBy      String?          @db.VarChar(255)
+  createdDate    DateTime         @default(now()) @db.DateTime(6)
+  updatedBy      String?          @db.VarChar(255)
+  updatedAt      DateTime         @default(now()) @db.DateTime(6)
+  dashboard_user dashboard_user[]
 }
 
 model partners {
@@ -1080,7 +1083,7 @@ model checkinTracker {
 }
 
 model international_company {
-  id               Int      @id @default(autoincrement())
+  id               String   @id @db.VarChar(100)
   fullName         String   @db.VarChar(100)
   workEmail        String   @unique(map: "workEmail") @db.VarChar(100)
   phone            String   @db.VarChar(100)
@@ -1100,20 +1103,45 @@ model international_company {
 }
 
 model localcompany {
-  id                     Int    @id @default(autoincrement())
-  fullName               String @db.VarChar(100)
-  email                  String @unique(map: "email") @db.VarChar(100)
-  phoneNo                String @db.VarChar(100)
-  areaOfInterset         String @db.VarChar(100)
-  companyLicense         String @db.VarChar(255)
-  sponsorYouthinitiative String @db.VarChar(5)
-  listedTechDir          String @db.VarChar(5)
-  interest               String @db.VarChar(50)
-  numberOfAttendees      Int
-  position               String @db.VarChar(100)
-  companyName            String @db.VarChar(100)
-  CompanyWebsite         String @db.VarChar(100)
-  companyProfile         String @db.VarChar(255)
+  id                       String  @id @db.VarChar(100)
+  fullName                 String  @db.VarChar(100)
+  email                    String  @unique(map: "email") @db.VarChar(100)
+  phoneNo                  String  @db.VarChar(100)
+  areaOfInterset           String  @db.VarChar(100)
+  companyLicense           String  @db.VarChar(255)
+  sponsorYouthinitiative   String  @db.VarChar(5)
+  listedTechDir            String  @db.VarChar(5)
+  interest                 String  @db.VarChar(50)
+  numberOfAttendees        Int
+  position                 String  @db.VarChar(100)
+  companyName              String  @db.VarChar(100)
+  CompanyWebsite           String  @db.VarChar(100)
+  companyProfile           String  @db.VarChar(255)
+  businessLicenseCode      String? @unique(map: "uq_businesslicense") @db.VarChar(100)
+  businessLicenseIssueDate String? @db.VarChar(100)
+}
+
+model menus {
+  id          Int      @id @default(autoincrement())
+  menuName    String   @unique(map: "uq_menunam") @db.VarChar(100)
+  childmenus  String?  @default("0") @db.Text
+  parent      Int?     @default(0)
+  route       String   @db.VarChar(100)
+  createdBy   String   @db.VarChar(255)
+  updatedBy   String   @db.VarChar(255)
+  createdDate DateTime @default(now()) @db.DateTime(0)
+  updatedDate DateTime @default(now()) @db.DateTime(0)
+  isActive    Int      @default(1)
+}
+
+model wpjm_dk_forms_duplicate {
+  form_id     BigInt   @id @default(autoincrement())
+  form_plugin String   @db.VarChar(50)
+  form_name   String   @db.VarChar(50)
+  form_value  String   @db.LongText
+  form_cookie String   @db.LongText
+  form_ip     String   @db.VarChar(50)
+  form_date   DateTime @db.DateTime(0)
 }
 
 enum wpjm_blpwp_stats_action {
@@ -1178,13 +1206,6 @@ enum messages_status {
   Pending
   Completed
   Failed
-}
-
-enum Role_role {
-  System
-  Admin
-  Marketer
-  TicketAgent
 }
 
 enum wpjm_wftrafficrates_hitType {

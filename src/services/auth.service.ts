@@ -30,10 +30,12 @@ export class AuthService{
             roleId: 0,
             updatedAt: new Date(),
             isLocked: 0,
-            isNew: 1
+            isNew: 1,
+            createdBy: await generateId(),
+            updatedBy: await generateId()
         }
         try{
-            
+
             const userCreated = await db.dashboard_user.create({data: newUser});
             logger.info('New user created with email' + signupDto.email);
             const accessToken =  this.jwtService.sign({userId: userCreated.id, email: userCreated.email});
@@ -85,13 +87,13 @@ export class AuthService{
         } catch(err:any){
             if(err instanceof PrismaClientKnownRequestError || err instanceof PrismaClientInitializationError){
                 logger.error('Error finding user: '+ err +' with email: '+ loginDto.email);
-                throw new Error('Something went wrong. Please try again!');    
+                throw new Error('Something went wrong. Please try again!');
             }
 
             throw new Error(err)
         }
     }
-    
+
     async refreshToken(refreshToken: string): Promise<string>{
         try{
             const payload:Payload = this.jwtService.verify(refreshToken);
