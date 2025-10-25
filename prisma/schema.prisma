@@ -1121,6 +1121,16 @@ model localcompany {
   businessLicenseIssueDate String? @db.VarChar(100)
 }
 
+model wpjm_dk_forms_duplicate {
+  form_id     BigInt   @id @default(autoincrement())
+  form_plugin String   @db.VarChar(50)
+  form_name   String   @db.VarChar(50)
+  form_value  String   @db.LongText
+  form_cookie String   @db.LongText
+  form_ip     String   @db.VarChar(50)
+  form_date   DateTime @db.DateTime(0)
+}
+
 model menus {
   id          Int      @id @default(autoincrement())
   menuName    String   @unique(map: "uq_menunam") @db.VarChar(100)
@@ -1132,16 +1142,6 @@ model menus {
   createdDate DateTime @default(now()) @db.DateTime(0)
   updatedDate DateTime @default(now()) @db.DateTime(0)
   isActive    Int      @default(1)
-}
-
-model wpjm_dk_forms_duplicate {
-  form_id     BigInt   @id @default(autoincrement())
-  form_plugin String   @db.VarChar(50)
-  form_name   String   @db.VarChar(50)
-  form_value  String   @db.LongText
-  form_cookie String   @db.LongText
-  form_ip     String   @db.VarChar(50)
-  form_date   DateTime @db.DateTime(0)
 }
 
 enum wpjm_blpwp_stats_action {

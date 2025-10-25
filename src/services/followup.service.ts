@@ -4,10 +4,11 @@ import { db } from "../util/config/db";
 import { generateId } from "../util/generateId";
 import logger from "../util/logger";
 import { FollowUpHistoryService } from "./followupHistory.service";
+import { SubmissionService } from "./submission.service";
 
 export class FollowUpService{
-    
     constructor(){
+        
     }
 
     async createFollowup(followupDto:FollowUpDto){

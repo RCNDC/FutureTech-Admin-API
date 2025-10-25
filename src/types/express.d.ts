@@ -16,6 +16,7 @@ declare module 'express-serve-static-core'{
         user?:{
             userId:string;
             email:string;
+            role?: number | null;
         }
     }
 }

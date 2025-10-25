@@ -16,6 +16,7 @@ SELECT t1.entry_id,
        t6.meta_value as 'collaborate',
        t7.meta_value as 'orgFile',
        t8.meta_value as 'mission',
+       t9.meta_value as 'registeredAs',
        t1.date_created as 'registeredDate'
 FROM
     cte_submissions as t1

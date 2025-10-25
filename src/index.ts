@@ -17,8 +17,15 @@ import roleRoutes from './routes/Role/route';
 
 const app = express();
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit:10,
+  message: 'Too many requests'
+});
+
 const port = process.env.PORT || 3000;
 
+// app.use(limiter);
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -29,7 +36,6 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
-
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/attendee', attendeeRoutes);
@@ -38,6 +44,7 @@ app.use('/api/register', submissionRoute);
 app.use('/api/submission', followRoute);
 app.use('/api/progress', followupNoteRoute);
 app.use('/api/mail', mailRoute);
+app.use('/api/menu', menuRoute);
 app.use('/api/partner', partnerRoute);
 app.use('/api/upload', uploadRouter);
 app.use('/api/role', roleRoutes);

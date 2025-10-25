@@ -5,13 +5,19 @@ import { AttendeeDTO } from "../../types/attendee";
 import { CheckInDto } from "../../types/order";
 import { CheckInController } from "../../controllers/checkin.controller";
 import AuthGuard from "../../middlewares/authGuard";
+import rateLimit from "express-rate-limit";
+import { rateLimiting } from "../../middlewares/rateLimiting";
 
 const attendeeController = new AttendeeController();
 const checkInController = new CheckInController();
 const attendeeRoutes = Router();
-
-attendeeRoutes.post('/checkout', AuthAPIKey, (req:Request, res:Response)=>attendeeController.createAttendee(req, res));
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit:10,
+  message: 'Too many requests'
+});
+attendeeRoutes.post('/checkout', [AuthAPIKey, limiter], (req:Request, res:Response)=>attendeeController.createAttendee(req, res));
 attendeeRoutes.post('/createBulkAttendees', [AuthAPIKey, AuthGuard], (req:Request<{}, any, {attendees: AttendeeDTO[]}>, res:Response)=>attendeeController.createBulkAttendees(req, res));
-attendeeRoutes.post('/checkin', AuthAPIKey, (req:Request<CheckInDto>, res:Response)=>checkInController.checkIn(req, res));
-attendeeRoutes.get('/getAllAttendees', AuthAPIKey, (req: Request, res:Response)=>attendeeController.getAllAttendees(req, res));
+attendeeRoutes.post('/checkin', [AuthAPIKey], (req:Request<CheckInDto>, res:Response)=>checkInController.checkIn(req, res));
+attendeeRoutes.get('/getAllAttendees', [AuthAPIKey, AuthGuard], (req: Request, res:Response)=>attendeeController.getAllAttendees(req, res));
 export default attendeeRoutes;

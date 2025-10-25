@@ -123,12 +123,12 @@ export class UserController{
                 res.status(401).json({message: 'unauthorized'});
                 return;
             }
-            const userData = await this.userService.getUserById(user.userId);
-            if(!userData){
-                res.status(404).json({message: 'user not found'});
-                return;
-            }
-            res.status(200).json({data: userData, message:'fetched Successfully'});
+            // const userData = await this.userService.getUserById(user.userId);
+            // if(!userData){
+            //     res.status(404).json({message: 'user not found'});
+            //     return;
+            // }
+            res.status(200).json({data: user, message:'fetched Successfully'});
         }catch(error){
             logger.error(error);
             res.status(500).json({message: 'something went wrong'});

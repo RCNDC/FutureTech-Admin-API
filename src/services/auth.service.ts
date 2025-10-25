@@ -31,15 +31,15 @@ export class AuthService{
             updatedAt: new Date(),
             isLocked: 0,
             isNew: 1,
-            createdBy: await generateId(),
-            updatedBy: await generateId()
+            createdBy: signupDto?.createdBy || '',
+            updatedBy: ''
         }
         try{
 
             const userCreated = await db.dashboard_user.create({data: newUser});
             logger.info('New user created with email' + signupDto.email);
-            const accessToken =  this.jwtService.sign({userId: userCreated.id, email: userCreated.email});
-            const refreshToken =  this.jwtService.sign({userId: userCreated.id, email: userCreated.email});
+            const accessToken =  this.jwtService.sign({userId: userCreated.id, email: userCreated.email, role: userCreated.roleId});
+            const refreshToken =  this.jwtService.sign({userId: userCreated.id, email: userCreated.email, role: userCreated.roleId});
             return {accessToken, refreshToken};
 
         }catch(err){
@@ -80,8 +80,8 @@ export class AuthService{
                 throw new Error('Invalid email or password');
             }
             logger.info('user login with email ' + loginDto.email);
-            const accessToken = this.jwtService.sign({userId: user.id, email: user.email});
-            const refreshToken = this.jwtService.sign({userId: user.id, email: user.email});
+            const accessToken = this.jwtService.sign({userId: user.id, email: user.email, role: user.roleId});
+            const refreshToken = this.jwtService.sign({userId: user.id, email: user.email, role: user.roleId});
             return {accessToken, refreshToken};
 
         } catch(err:any){
@@ -103,7 +103,7 @@ export class AuthService{
                 }
             });
             if(user && !user.isLocked){
-                return this.jwtService.sign({userId: user.id, email: user.email});
+                return this.jwtService.sign({userId: user.id, email: user.email, role: user.roleId});
             }
             throw new Error('Unauthorize');
 

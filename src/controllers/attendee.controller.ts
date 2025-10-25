@@ -43,8 +43,13 @@ export class AttendeeController {
                 if (newOrder) {
                     
                         const test = await QRCode.toFile(newOrder.orderNo + '.png', newOrder.orderNo);
-                        await this.mailService.sendMail(newAttendee.email, 'Event Invitation', 'This is you invitation ticket to the event', Invitation(newAttendee.fullname, newAttendee.email, newAttendee.phone, 'qrcode.png'), [{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]);
-                        fs.rm(newOrder.orderNo + '.png', { maxRetries: 3 });
+                        addToMailQueue({to:newAttendee.email, subject:'Event Invitation', body:'', html:defaultTemplate('', '', TicketTemplate(newAttendee.fullname, newAttendee.email, newAttendee.phone)), attachments:[{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]});
+                        mailWorker.on('completed', (job,result)=>{
+                            if(result && Array.isArray(result.rejected) && result.rejected.length > 0){
+                                console.log(result)
+                            }
+                            fs.rm(newOrder.orderNo+'.png', {retryDelay: 1000})
+                        })
                         res.status(200).json({ data: newOrder, message: 'Order created Successfully' });
                         return;
 

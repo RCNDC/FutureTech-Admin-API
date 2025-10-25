@@ -12,13 +12,13 @@ export class OrderService {
             throw new Error('order data missing');
         }
         try {
-            // const order = await db.orders.findFirst({
-            //     where: {
-            //         attendeeId: orderDto.attendeeId
-            //     }
-            // });
+            const order = await db.orders.findFirst({
+                where: {
+                    attendeeId: orderDto.attendeeId
+                }
+            });
             
-            // if (order) return order;
+            if (order) return order;
 
             const newOrder = await db.orders.create({
                 data: {

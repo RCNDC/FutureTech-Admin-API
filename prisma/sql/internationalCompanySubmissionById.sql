@@ -27,6 +27,7 @@ SELECT t1.entry_id,
         t12.meta_value as 'interestType',
         t13.meta_value as 'pitchProduct',
         t14.meta_value as 'b2Schedule',
+        t15.meta_value as 'registeredAs',
         t16.meta_value as 'companyEmail',
         t1.date_created as 'registeredDate'
 FROM
