@@ -14,41 +14,56 @@ export interface Role {
 export class RoleService {
 
     async getAllRoles(filter: string): Promise<Role[]> {
-        const roles = await db.role.findMany({
-            where: {
-                name: {
-                    contains: filter
+        try {
+            const roles = await db.role.findMany({
+                where: {
+                    name: {
+                        contains: filter
+                    }
                 }
-            }
-        });
-        return roles;
+            });
+            return roles;
+        } catch (e) {
+            logger.error(e);
+            throw new Error("Something went wrong. Please try again");
+        }
     }
 
     async createRole(role: Role, userId: string): Promise<Role> {
-        const roleExists = await db.role.findUnique({
-            where: {
-                name: role.name
+        try {
+            const roleExists = await db.role.findUnique({
+                where: {
+                    name: role.name
+                }
+            });
+            if (roleExists) {
+                throw new Error("Role already exists");
             }
-        });
-        if (roleExists) {
-            throw new Error("Role already exists");
+            const newRole = await db.role.create({
+                data: {
+                    name: role.name,
+                    createdBy: userId,
+                }
+            });
+            return newRole;
+        } catch (e) {
+            logger.error(e);
+            throw new Error("Something went wrong. Please try again");
         }
-        const newRole = await db.role.create({
-            data: {
-                name: role.name,
-                createdBy: userId,
-            }
-        });
-        return newRole;
     }
 
     async isRoleAssigned(roleId: number): Promise<boolean> {
-        const users = await db.dashboard_user.findMany({
-            where: {
-                roleId: roleId
-            }
-        });
-        return users.length > 0;
+        try {
+            const users = await db.dashboard_user.findMany({
+                where: {
+                    roleId: roleId
+                }
+            });
+            return users.length > 0;
+        } catch (e) {
+            logger.error(e);
+            throw new Error("Something went wrong. Please try again");
+        }
     }
 
     async deleteRole(roleId: number): Promise<Role> {
