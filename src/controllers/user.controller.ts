@@ -17,12 +17,12 @@ export class UserController{
                 return;
             }
             const userExists = await this.userService.getUserByEmail(email);
-            if(!userExists){
-                response.status(404).json({message: "Email doesn't exist"});
+            if(userExists){
+                this.userService.sendResetEmail(userExists.email);
+                 response.status(200).json({message: 'Email sent successfully'});
                 return;
             }
-            this.userService.sendResetEmail(userExists.email);
-            response.status(200).json({message: 'Email sent successfully'});
+           
 
         }catch(error){
             response.status(400).json({message:`${error}`})

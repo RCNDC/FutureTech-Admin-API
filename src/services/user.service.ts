@@ -162,6 +162,7 @@ export class UserService{
             await this.mailService.sendMail(email,"Forgot password", '',htmlContent);
             return 'success';
         }catch(error){
+            logger.error(error+'')
             return error;
         }
     }
