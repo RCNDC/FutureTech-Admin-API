@@ -14,6 +14,7 @@ import mailRoute from './routes/Mail/route';
 import uploadRouter from './routes/Uploads/route';
 import partnerRoute from './routes/Partner/route';
 import roleRoutes from './routes/Role/route';
+import menuRoute from './routes/Menu/route';
 
 const app = express();
 
@@ -21,9 +22,17 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // app.use(limiter);
+const whitelist = process.env.FRONTEND_URL?.split(',') || [];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+   origin(requestOrigin, callback) {
+     if(whitelist.indexOf(requestOrigin || '')!== -1 || !requestOrigin){
+      callback(null, true);
+     }else{
+      callback(new Error('Not allowed by CORS'));
+     }
+   },
     allowedHeaders: ['Content-Type', 'x-api-key', 'Authorization'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
@@ -40,6 +49,7 @@ app.use('/api/submission', followRoute);
 app.use('/api/progress', followupNoteRoute);
 app.use('/api/mail', mailRoute);
 app.use('/api/partner', partnerRoute);
+app.use('/api/menu', menuRoute);
 app.use('/api/upload', uploadRouter);
 app.use('/api/role', roleRoutes);
 app.get('/', (req, res) => {
