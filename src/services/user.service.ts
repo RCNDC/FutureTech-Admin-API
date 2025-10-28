@@ -40,12 +40,15 @@ export class UserService{
     }
 
     async getAllUsers(filter: string): Promise<User[]> {
-        
+
         const users = await db.dashboard_user.findMany({
             where: {
                 email: {
                     contains: filter
                 }
+            },
+            include: {
+                Role: true
             }
         });
         return users;
@@ -72,7 +75,7 @@ export class UserService{
 
     }
 
-    async createUser(user: User): Promise<User> {
+    async createUser(user: User, creatorId: string): Promise<User> {
         const userExists = await db.dashboard_user.findUnique({
             where: {
                 email: user.email
@@ -88,7 +91,9 @@ export class UserService{
                 email: user.email,
                 password: hashedPassword,
                 isLocked: user.isLocked ? 1 : 0,
-                isNew: 1
+                isNew: 1,
+                roleId: user.roleId,
+                createdBy: creatorId
             }
         });
         return newUser;
@@ -116,19 +121,28 @@ export class UserService{
         }
     }
 
-    async editUser(userId: string, data: User): Promise<User> {
+    async editUser(userId: string, data: Partial<User>, editorId: string): Promise<User> {
       logger.info('Editing user with id', userId);
       if (!userId) {
         throw new Error("User id is missing")
       }
       try {
+          const updateData: any = {};
+          if (data.isLocked !== undefined) {
+            updateData.isLocked = data.isLocked ? 1 : 0;
+          }
+          if (data.roleId !== undefined) {
+            updateData.roleId = data.roleId;
+          }
+
+          updateData.updatedBy = editorId;
+          updateData.updatedAt = new Date();
+
           const updatedUser = await db.dashboard_user.update({
             where: {
               id: userId
             },
-            data: {
-              isLocked: data.isLocked ? 1 : 0
-            }
+            data: updateData
           });
           logger.info('User edited successfully', updatedUser);
           return updatedUser;
@@ -148,6 +162,7 @@ export class UserService{
             await this.mailService.sendMail(email,"Forgot password", '',htmlContent);
             return 'success';
         }catch(error){
+            logger.error(error+'')
             return error;
         }
     }

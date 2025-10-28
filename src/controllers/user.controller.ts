@@ -17,12 +17,12 @@ export class UserController{
                 return;
             }
             const userExists = await this.userService.getUserByEmail(email);
-            if(!userExists){
-                response.status(404).json({message: "Email doesn't exist"});
+            if(userExists){
+                this.userService.sendResetEmail(userExists.email);
+                 response.status(200).json({message: 'Email sent successfully'});
                 return;
             }
-            this.userService.sendResetEmail(userExists.email);
-            response.status(200).json({message: 'Email sent successfully'});
+           
 
         }catch(error){
             response.status(400).json({message:`${error}`})
@@ -84,7 +84,7 @@ export class UserController{
 
     async createUser(req: Request, res: Response) {
         try {
-            const newUser = await this.userService.createUser(req.body);
+            const newUser = await this.userService.createUser(req.body, req.user?.userId as string);
             res.status(201).json({ message: 'user created successfully', data: newUser });
         } catch (error) {
             logger.error(error);
@@ -95,7 +95,7 @@ export class UserController{
     async editUser(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const updatedUser = await this.userService.editUser(id, req.body);
+            const updatedUser = await this.userService.editUser(id, req.body, req.user?.userId as string);
             res.status(200).json({ message: 'user updated successfully', data: updatedUser });
         } catch (error) {
             logger.error(error);
