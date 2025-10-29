@@ -13,8 +13,8 @@ const checkInController = new CheckInController();
 const attendeeRoutes = Router();
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit:10,
-  message: 'Too many requests'
+  limit:3,
+  message: { message: 'Too many requests. Please try again later.' }
 });
 attendeeRoutes.post('/checkout', [AuthAPIKey, limiter], (req:Request, res:Response)=>attendeeController.createAttendee(req, res));
 attendeeRoutes.post('/createBulkAttendees', [AuthAPIKey, AuthGuard], (req:Request<{}, any, {attendees: AttendeeDTO[]}>, res:Response)=>attendeeController.createBulkAttendees(req, res));
