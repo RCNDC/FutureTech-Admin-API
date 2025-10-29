@@ -65,31 +65,11 @@ export class MenuService {
 
     async getMenusStructure() {
         try {
-            const nestMenuData = (flatArray:any[], parentId:number = 0) => {
-                const menuTree = [];
-                
-                // 1. Find all items that belong to the current parentId level
-                const children = flatArray
-                    .filter(item => item.parent === parentId)
-                     // Sort them by the 'order' field
-                
-                // 2. Recursively process each child
-                for (const item of children) {
-                    // Clone the item to avoid modifying the original flat array objects
-                    const nestedItem = { ...item };
-
-                    // Find and assign the children for this current item
-                    nestedItem.children = nestMenuData(flatArray, item.id);
-
-                    menuTree.push(nestedItem);
-                }
-
-                return menuTree;
-            };
+            
 
             const allmenus = await db.menus.findMany();
-            const menuStructure = nestMenuData(allmenus, 0)
-            
+            const menuStructure = this.nestMenuData(allmenus, 0)
+
             return menuStructure
 
 
@@ -99,65 +79,87 @@ export class MenuService {
         }
     }
 
-    async updateMenu(menu:Partial<menus>){
-        if(!menu){
+    nestMenuData(flatArray: any[], parentId: number = 0) {
+        const menuTree = [];
+
+        // 1. Find all items that belong to the current parentId level
+        const children = flatArray
+            .filter(item => item.parent === parentId)
+        // Sort them by the 'order' field
+
+        // 2. Recursively process each child
+        for (const item of children) {
+            // Clone the item to avoid modifying the original flat array objects
+            const nestedItem = { ...item };
+
+            // Find and assign the children for this current item
+            nestedItem.children = this.nestMenuData(flatArray, item.id);
+
+            menuTree.push(nestedItem);
+        }
+
+        return menuTree;
+    };
+
+    async updateMenu(menu: Partial<menus>) {
+        if (!menu) {
             throw new Error('missing values');
         }
-        try{
+        try {
             const selectedMenu = await db.menus.findFirst({
-                where:{
+                where: {
                     id: menu.id,
                 }
             });
-            if(!selectedMenu){
+            if (!selectedMenu) {
                 throw new Error('Menu not found');
             }
             const updatedMenu = await db.menus.update({
-                where:{
+                where: {
                     id: menu.id
                 },
-                data:{
+                data: {
                     ...menu,
                     parent: parseInt(menu.parent?.toString() || '')
                 }
             });
             return updatedMenu
-        }catch(err){
-            logger.error(err+'')
-            if(err instanceof PrismaClientKnownRequestError){
+        } catch (err) {
+            logger.error(err + '')
+            if (err instanceof PrismaClientKnownRequestError) {
                 throw new Error('Something went wrong please try again');
             }
             throw err;
         }
     }
 
-    async deleteMenu(menuId:number){
-        if(!menuId){
+    async deleteMenu(menuId: number) {
+        if (!menuId) {
             throw new Error('missing value');
         }
-        try{
+        try {
             const hasChild = await db.menus.findMany({
-                where:{
+                where: {
                     parent: menuId
                 }
             });
-            if(hasChild){
+            if (hasChild) {
 
                 await db.menus.deleteMany({
-                    where:{
-                        id:{
-                            in: hasChild.map((child)=>child.id)
+                    where: {
+                        id: {
+                            in: hasChild.map((child) => child.id)
                         }
                     }
                 })
             }
             await db.menus.delete({
-                where:{
+                where: {
                     id: menuId
                 }
             });
-        }catch(err){
-            logger.error(err+'');
+        } catch (err) {
+            logger.error(err + '');
 
         }
     }
