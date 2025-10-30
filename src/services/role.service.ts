@@ -30,15 +30,15 @@ export class RoleService {
     }
 
     async createRole(role: Role, userId: string): Promise<Role> {
-        try {
-            const roleExists = await db.role.findUnique({
-                where: {
-                    name: role.name
-                }
-            });
-            if (roleExists) {
-                throw new Error("Role already exists");
+        const roleExists = await db.role.findUnique({
+            where: {
+                name: role.name
             }
+        });
+        if (roleExists) {
+            throw new Error("Role already exists");
+        }
+        try {
             const newRole = await db.role.create({
                 data: {
                     name: role.name,
@@ -67,8 +67,7 @@ export class RoleService {
     }
 
     async deleteRole(roleId: number): Promise<Role> {
-        logger.info('Deleting role with id', roleId);
-        if (!roleId) {
+        if (roleId == null) {
             throw new Error("Role id is missing");
         }
 
@@ -92,24 +91,24 @@ export class RoleService {
 
     async editRole(roleId: number, data: Role, userId: string): Promise<Role> {
         logger.info('Editing role with id', roleId);
-        if (!roleId) {
+        if (roleId == null) {
             throw new Error("Role id is missing")
         }
 
-        const roleExists = await db.role.findFirst({
-            where: {
-                name: data.name,
-                id: {
-                    not: roleId
-                }
-            }
-        });
-
-        if (roleExists) {
-            throw new Error("Role already exists");
-        }
-
         try {
+            const roleExists = await db.role.findFirst({
+                where: {
+                    name: data.name,
+                    id: {
+                        not: roleId
+                    }
+                }
+            });
+
+            if (roleExists) {
+                throw new Error("Role already exists");
+            }
+
             const updatedRole = await db.role.update({
                 where: {
                     id: roleId
@@ -122,8 +121,11 @@ export class RoleService {
             });
             logger.info('Role edited successfully', updatedRole);
             return updatedRole;
-        } catch (e) {
+        } catch (e: any) {
             logger.error(e);
+            if (e.message === "Role already exists") {
+                throw e;
+            }
             throw new Error("Something went wrong. Please try again");
         }
     }

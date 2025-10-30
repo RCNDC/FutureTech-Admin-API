@@ -15,6 +15,7 @@ import uploadRouter from './routes/Uploads/route';
 import partnerRoute from './routes/Partner/route';
 import roleRoutes from './routes/Role/route';
 import menuRoute from './routes/Menu/route';
+import permissionRoutes from './routes/Permission/route';
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use('/api/partner', partnerRoute);
 app.use('/api/menu', menuRoute);
 app.use('/api/upload', uploadRouter);
 app.use('/api/role', roleRoutes);
+app.use('/api/permission', permissionRoutes);
 app.get('/', (req, res) => {
   res.send('Hello, World!');
 });

@@ -29,7 +29,7 @@ export class AuthenticationController {
             });
             response.status(201).json({ accessToken: tokens.accessToken });
         } catch (err) {
-            response.status(400).json({ message: (err as Error).message });
+            response.status(500).json({ message: (err as Error).message });
         }
     }
     async logIn(req: Request<LoginDto>, response: Response) {
@@ -48,7 +48,7 @@ export class AuthenticationController {
             });
             response.status(201).json({ accessToken: tokens.accessToken });
         } catch (err) {
-            response.status(400).json({ message: (err as Error).message });
+            response.status(500).json({ message: (err as Error).message });
         }
     }
 
