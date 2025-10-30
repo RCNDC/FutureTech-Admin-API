@@ -12,15 +12,7 @@ export class PermissionService {
             throw new Error('Missing role Id');
         }
         try{
-            const roleMenus = await db.roleMenu.findMany({
-                where:{
-                    roleId: roleId,
-                },
-                include:{
-                    menus: true
-                }
-            });
-            const menus = roleMenus.map(rm => rm.menus);
+            const menus = await this.getMenuChildByRoleId(roleId);
             const parentmenus = await db.menus.findMany({
                 where:{
                     parent: 0
@@ -37,6 +29,30 @@ export class PermissionService {
         }
     }
 
+    async getMenuChildByRoleId(roleId: number){
+        try{
+            
+            const roleMenus = await db.roleMenu.findMany({
+                    where:{
+                        roleId: roleId,
+                    },
+                    include:{
+                        menus: true
+                    }
+                });
+                const menus = roleMenus.map(rm => rm.menus);
+    
+                return menus
+        }catch(err){
+            logger.error('Error fetching menus by role ID:', err);
+            if(err instanceof PrismaClientKnownRequestError){
+                throw new Error('Database error occurred while fetching menus');
+            }
+            throw new Error('An unexpected error occurred');
+        }
+
+    }
+
     async assignMenuToRole(roleId: number, createdBy:string, menuIds: number[]){
         if(!roleId || !menuIds || menuIds.length === 0){
             throw new Error('Missing role Id or menu Ids');
@@ -51,6 +67,11 @@ export class PermissionService {
                 updatedAt: new Date(),
                 
             }));
+            await db.roleMenu.deleteMany({
+                where:{
+                    roleId: roleId
+                }
+            })
             const result = await db.roleMenu.createMany({
                 data: assignments,
                 skipDuplicates: true,

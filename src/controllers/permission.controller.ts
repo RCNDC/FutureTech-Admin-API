@@ -53,8 +53,8 @@ export class PermissionController{
             return;
         }
         try{
-            const menus = await this.permissionService.getMenuByRoleId(parseInt(roleId));
-            console.log(menus)
+            const menus = await this.permissionService.getMenuChildByRoleId(parseInt(roleId));
+
             res.status(200).json({data: menus, message: 'Role menus fetched successfully'});
         }catch(err){
             logger.error('Error in getRoleMenu:', err);
