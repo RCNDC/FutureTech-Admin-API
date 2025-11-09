@@ -43,7 +43,7 @@ export class AttendeeController {
                 if (newOrder) {
                     
                         const test = await QRCode.toFile(newOrder.orderNo + '.png', newOrder.orderNo);
-                        addToMailQueue({to:newAttendee.email, subject:'Event Invitation', body:'', html:defaultTemplate('', '', TicketTemplate(newAttendee.fullname, newAttendee.email, newAttendee.phone)), attachments:[{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]});
+                        addToMailQueue({to:newAttendee.email, subject:'Event Invitation', body:'', html:'', attachments:[{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]});
                         mailWorker.on('completed', (job,result)=>{
                             if(result && Array.isArray(result.rejected) && result.rejected.length > 0){
                                 console.log(result)
@@ -92,7 +92,7 @@ export class AttendeeController {
                         
                         const newOrder = await this.orderService.createOrder(order);
                         await QRCode.toFile(newOrder.orderNo + '.png', newOrder.orderNo);
-                        addToMailQueue({to:newAttendee.email, subject:'Event Invitation', body:'', html:defaultTemplate('', '', TicketTemplate(newAttendee.fullname, newAttendee.email, newAttendee.phone)), attachments:[{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]});
+                        addToMailQueue({to:newAttendee.email, subject:'Event Invitation', body:'', html:'', attachments:[{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]});
                         mailWorker.on('completed', (job,result)=>{
                             if(result && Array.isArray(result.rejected) && result.rejected.length > 0){
                                 console.log(result)
