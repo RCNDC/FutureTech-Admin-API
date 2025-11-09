@@ -19,13 +19,13 @@ export class MailController{
                 return;
             }
             for(const email of emails.data){
-                const message = await this.messageService.sendMessage({attachedTo: parseInt(email.attachedTo), body: email.body, title: email.title, reciver: email.reciver, sender: req.user?.email?req.user.email:'system@futuretech.com', sentAt: new Date(), sentBy: req.user?.userId?req.user?.userId:'0', status: 'Pending'});
+                const message = await this.messageService.sendMessage({attachedTo: parseInt(email.attachedTo), body: email.body, title: email.title, reciver: email.reciver, sender: req.user?.email?req.user.email:'attendees@futuretech.com', sentAt: new Date(), sentBy: req.user?.userId?req.user?.userId:'0', status: 'Pending'});
                 if(message){
                     addToMailQueue({to: email.reciver, subject: email.title, body: email.body, html: defaultTemplate(email.body), id: message.id});
                     mailWorker.on('completed', (job, result)=>{
                         if(result && Array.isArray(result.rejected) && result.rejected.length === 0){
                             this.messageService.updateMessageStatus(job.data.id, 'Completed');
-    
+
                         }else{
                             this.messageService.updateMessageStatus(job.data.id, 'Failed');
                         }
@@ -36,7 +36,7 @@ export class MailController{
                      logger.error(`job failed sending to ${job?.data.to}`)
                 })
             }
-            //send email logic here
+            //send email logic here56]V%;5s0+.)mEpK
             res.status(200).json({message: 'emails sent successfully'});
         }catch(error){
             res.status(500).json({message: 'internal server error'});
