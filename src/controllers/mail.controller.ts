@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { addToMailQueue, mailWorker } from "../workers/mail.worker";
 import { MessageService } from "../services/message.service";
 import { Invitation } from "../mail/templates/invitation";
-import defaultTemplate from "../mail/templates/defaulttemplate";
+//import defaultTemplate from "../mail/templates/defaulttemplate";
 import logger from "../util/logger";
 
 export class MailController{
