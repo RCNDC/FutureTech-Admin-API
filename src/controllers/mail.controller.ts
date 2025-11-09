@@ -21,7 +21,7 @@ export class MailController{
             for(const email of emails.data){
                 const message = await this.messageService.sendMessage({attachedTo: parseInt(email.attachedTo), body: email.body, title: email.title, reciver: email.reciver, sender: req.user?.email?req.user.email:'attendees@futuretechaddis.com', sentAt: new Date(), sentBy: req.user?.userId?req.user?.userId:'0', status: 'Pending'});
                 if(message){
-                    addToMailQueue({to: email.reciver, subject: email.title, body: email.body, html: defaultTemplate(email.body), id: message.id});
+                    addToMailQueue({to: email.reciver, subject: email.title, body: email.body, id: message.id});
                     mailWorker.on('completed', (job, result)=>{
                         if(result && Array.isArray(result.rejected) && result.rejected.length === 0){
                             this.messageService.updateMessageStatus(job.data.id, 'Completed');
