@@ -9,7 +9,7 @@ import { MailService } from "../services/mail.service";
 import { Invitation } from "../mail/templates/invitation";
 import fs from 'fs/promises';
 import { PrismaClientInitializationError } from "@prisma/client/runtime/library";
-import { addToMailQueue, mailWorker } from "../workers/mail.worker";
+import { addToMailQueue } from "../workers/mail.worker";
 import { SentMessageInfo } from "nodemailer";
 import defaultTemplate from "../mail/templates/defaulttemplate";
 import TicketTemplate from "../mail/templates/ticket";
@@ -39,28 +39,41 @@ export class AttendeeController {
                 }
                 try {
 
-                const newOrder = await this.orderService.createOrder(order);
-                if (newOrder) {
+                    const newOrder = await this.orderService.createOrder(order);
+                    if (newOrder) {
 
-                        const test = await QRCode.toFile(newOrder.orderNo + '.png', newOrder.orderNo);
-                        addToMailQueue({to:newAttendee.email, subject:'Event Invitation', body:'', html:defaultTemplate('', '', TicketTemplate(newAttendee.fullname, newAttendee.email, newAttendee.phone)), attachments:[{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]});
-                        mailWorker.on('completed', (job,result)=>{
-                            if(result && Array.isArray(result.rejected) && result.rejected.length > 0){
-                                console.log(result)
+                        const qrcodePath = newOrder.orderNo + '.png';
+                        await QRCode.toFile(qrcodePath, newOrder.orderNo);
+
+                        try {
+                            const result = await addToMailQueue({
+                                to: newAttendee.email,
+                                subject: 'Event Invitation',
+                                body: '',
+                                html: defaultTemplate('', '', TicketTemplate(newAttendee.fullname, newAttendee.email, newAttendee.phone)),
+                                attachments: [{ filename: 'qrcode.png', cid: 'qrcode.png', path: qrcodePath }]
+                            });
+
+                            if (result && Array.isArray(result.rejected) && result.rejected.length > 0) {
+                                logger.error(`Mail rejected for ${newAttendee.email}: ${JSON.stringify(result.rejected)}`);
                             }
-                            fs.rm(newOrder.orderNo+'.png', {retryDelay: 1000})
-                        })
+                        } catch (err) {
+                            logger.error(`Error sending ticket to ${newAttendee.email}: ${(err as Error).message}`);
+                        } finally {
+                            await fs.rm(qrcodePath, { force: true });
+                        }
+
                         res.status(200).json({ data: newOrder, message: 'Order created Successfully' });
                         return;
 
 
                     }
-                    } catch (error) {
-                        logger.error(error + 'm');
-                        // logger.error(error + ' new order failed');
-                        res.status(500).json({message: error+' '});
-                        return;
-                    }
+                } catch (error) {
+                    logger.error(error + 'm');
+                    // logger.error(error + ' new order failed');
+                    res.status(500).json({ message: error + ' ' });
+                    return;
+                }
 
             }
             res.status(500).json({ message: 'something went wrong' })
@@ -72,57 +85,65 @@ export class AttendeeController {
 
     }
 
-    async createBulkAttendees(req: Request<{}, any, {attendees: AttendeeDTO[]}>, res: Response){
+    async createBulkAttendees(req: Request<{}, any, { attendees: AttendeeDTO[] }>, res: Response) {
         const attendees = req.body.attendees;
-        try{
-            if(!attendees || !Array.isArray(attendees)){
+        try {
+            if (!attendees || !Array.isArray(attendees)) {
                 logger.error('malformed data or missing values')
-                res.status(400).json({message: 'malformed data or missing values'});
+                res.status(400).json({ message: 'malformed data or missing values' });
                 return;
             }
             const newAttendees = [];
-            for(const attendee of attendees){
-                try{
+            for (const attendee of attendees) {
+                try {
                     const newAttendee = await this.attendeeService.createAttendee(attendee);
-                    if(newAttendee){
-                         const order: OrderDto = {
+                    if (newAttendee) {
+                        const order: OrderDto = {
                             attendeeId: newAttendee.id,
                             ticket: attendee.ticketType || "Event",
                         }
 
                         const newOrder = await this.orderService.createOrder(order);
-                        await QRCode.toFile(newOrder.orderNo + '.png', newOrder.orderNo);
-                        addToMailQueue({to:newAttendee.email, subject:'Event Invitation', body:'', html:defaultTemplate('', '', TicketTemplate(newAttendee.fullname, newAttendee.email, newAttendee.phone)), attachments:[{ filename: 'qrcode.png', cid: 'qrcode.png', path: newOrder.orderNo + '.png' }]});
-                        mailWorker.on('completed', (job,result)=>{
-                            if(result && Array.isArray(result.rejected) && result.rejected.length > 0){
-                                console.log(result)
-                            }
-                            fs.rm(newOrder.orderNo+'.png', {retryDelay: 1000})
-                        })
+                        const qrcodePath = newOrder.orderNo + '.png';
+                        await QRCode.toFile(qrcodePath, newOrder.orderNo);
+
+                        try {
+                            await addToMailQueue({
+                                to: newAttendee.email,
+                                subject: 'Event Invitation',
+                                body: '',
+                                html: defaultTemplate('', '', TicketTemplate(newAttendee.fullname, newAttendee.email, newAttendee.phone)),
+                                attachments: [{ filename: 'qrcode.png', cid: 'qrcode.png', path: qrcodePath }]
+                            });
+                        } catch (err) {
+                            logger.error(`Bulk mail error for ${newAttendee.email}: ${(err as Error).message}`);
+                        } finally {
+                            await fs.rm(qrcodePath, { force: true });
+                        }
 
                         //res.status(200).json({ data: newOrder, message: 'Order created Successfully' });
                         newAttendees.push(newAttendee);
                     }
-                }catch(error){
-                    logger.error(error+'');
+                } catch (error) {
+                    logger.error(error + '');
                 }
             }
-            res.status(200).json({data: newAttendees, message: 'Attendees created Successfully'});
-        }catch(error){
+            res.status(200).json({ data: newAttendees, message: 'Attendees created Successfully' });
+        } catch (error) {
             logger.error(error);
-            res.status(500).json({message: 'unable to create attendees'});
+            res.status(500).json({ message: 'unable to create attendees' });
         }
     }
 
-    async getAllAttendees(req:Request, res:Response){
-        const {query} = req.query;
+    async getAllAttendees(req: Request, res: Response) {
+        const { query } = req.query;
 
         const attendees = await this.attendeeService.getAllAttendees(query);
 
-        res.status(200).json({message: 'fetched successful', data:attendees});
+        res.status(200).json({ message: 'fetched successful', data: attendees });
 
     }
-    async getCheckInList(req:Request, res: Response){
+    async getCheckInList(req: Request, res: Response) {
         const page = req.query.page || 1;
         const limit = req.query.limit || 10;
 

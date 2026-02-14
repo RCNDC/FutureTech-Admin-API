@@ -60,3 +60,4 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   logger.info(`Server is running on http://localhost:${port}`);
 });
+
