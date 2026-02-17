@@ -16,6 +16,7 @@ import partnerRoute from './routes/Partner/route';
 import roleRoutes from './routes/Role/route';
 import menuRoute from './routes/Menu/route';
 import permissionRoutes from './routes/Permission/route';
+import companyRoute from './routes/Company/route';
 
 const app = express();
 
@@ -27,13 +28,13 @@ const whitelist = process.env.FRONTEND_URL?.split(',') || [];
 
 app.use(
   cors({
-   origin(requestOrigin, callback) {
-     if(whitelist.indexOf(requestOrigin || '')!== -1 || !requestOrigin){
-      callback(null, true);
-     }else{
-      callback(new Error('Not allowed by CORS'));
-     }
-   },
+    origin(requestOrigin, callback) {
+      if (whitelist.indexOf(requestOrigin || '') !== -1 || !requestOrigin) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     allowedHeaders: ['Content-Type', 'x-api-key', 'Authorization'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
@@ -54,6 +55,7 @@ app.use('/api/menu', menuRoute);
 app.use('/api/upload', uploadRouter);
 app.use('/api/role', roleRoutes);
 app.use('/api/permission', permissionRoutes);
+app.use('/api/company', companyRoute);
 app.get('/', (req, res) => {
   res.send('Hello, World!');
 });

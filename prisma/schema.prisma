@@ -32,6 +32,9 @@ model wpjm_actionscheduler_actions {
   @@index([last_attempt_gmt], map: "last_attempt_gmt")
   @@index([scheduled_date_gmt], map: "scheduled_date_gmt")
   @@index([status, scheduled_date_gmt], map: "status_scheduled_date_gmt")
+  @@index([claim_id, status, priority, scheduled_date_gmt], map: "claim_id_status_priority_scheduled_date_gmt")
+  @@index([status, claim_id], map: "status_claim_id")
+  @@index([status, last_attempt_gmt], map: "status_last_attempt_gmt")
 }
 
 model wpjm_actionscheduler_claims {
@@ -277,18 +280,6 @@ model wpjm_cookieadmin_cookies {
   scan_timestamp Int?      @default(0)
 }
 
-model wpjm_duplicator_packages {
-  id      BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  name    String   @db.VarChar(250)
-  hash    String   @db.VarChar(50)
-  status  Int
-  created DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
-  owner   String   @db.VarChar(60)
-  package String   @db.LongText
-
-  @@index([hash], map: "hash")
-}
-
 model wpjm_e_events {
   id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   event_data String?  @db.Text
@@ -309,16 +300,19 @@ model wpjm_eb_form_settings {
 }
 
 model wpjm_frmt_form_entry {
-  entry_id     BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  entry_id     BigInt                      @id @default(autoincrement()) @db.UnsignedBigInt
   entry_type   String
-  draft_id     String?  @db.VarChar(12)
-  form_id      BigInt   @db.UnsignedBigInt
-  is_spam      Boolean  @default(false)
-  date_created DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  draft_id     String?                     @db.VarChar(12)
+  form_id      BigInt                      @db.UnsignedBigInt
+  is_spam      Boolean                     @default(false)
+  date_created DateTime                    @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  status       wpjm_frmt_form_entry_status @default(active)
 
   @@index([form_id], map: "entry_form_id")
   @@index([is_spam], map: "entry_is_spam")
   @@index([entry_type], map: "entry_type")
+  @@index([form_id, status], map: "entry_form_status")
+  @@index([status], map: "entry_status")
 }
 
 model wpjm_frmt_form_entry_meta {
@@ -1161,6 +1155,32 @@ model roleMenu {
   @@index([roleId], map: "fk_role")
 }
 
+model newCompanies {
+  Id             Int       @id @default(autoincrement()) @db.UnsignedInt
+  companyName    String    @db.VarChar(255)
+  fullName       String?   @db.VarChar(255)
+  position       String?   @db.VarChar(100)
+  primaryEmail   String    @db.VarChar(255)
+  secondaryEmail String    @db.VarChar(255)
+  phoneNumber    String?   @db.VarChar(20)
+  sector         String?   @db.VarChar(100)
+  companyWebsite String?   @db.Text
+  socialLinks    String?   @db.Text
+  uploadLicense  String?   @db.VarChar(255)
+  type           String?   @db.VarChar(50)
+  createdAt      DateTime? @default(now()) @db.DateTime(0)
+  updatedAt      DateTime? @default(now()) @db.DateTime(0)
+}
+
+model confirmed {
+  id             String   @id @db.VarChar(255)
+  fullname       String   @db.VarChar(100)
+  phone          String   @db.VarChar(20)
+  email          String   @db.VarChar(255)
+  registereddate DateTime @default(now()) @db.DateTime(0)
+  checkedindate  DateTime @default(now()) @db.DateTime(0)
+}
+
 enum wpjm_blpwp_stats_action {
   click
   hover
@@ -1223,6 +1243,13 @@ enum messages_status {
   Pending
   Completed
   Failed
+}
+
+enum wpjm_frmt_form_entry_status {
+  active
+  spam
+  draft
+  abandoned
 }
 
 enum wpjm_wftrafficrates_hitType {
