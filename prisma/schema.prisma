@@ -1198,6 +1198,19 @@ model newLocalCompanies {
   updatedAt      DateTime? @default(now()) @db.DateTime(0)
 }
 
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sales_dashboard {
+  salesId         Int       @id @default(autoincrement()) @db.UnsignedInt
+  salesPersonName String    @db.VarChar(255)
+  email           String    @unique(map: "email") @db.VarChar(255)
+  password        String    @db.VarChar(255)
+  roleId          Int
+  companyId       String?   @db.Text
+  salaryAmount    Decimal   @default(0.00) @db.Decimal(15, 2)
+  createdAt       DateTime? @default(now()) @db.DateTime(0)
+  updatedAt       DateTime? @default(now()) @db.DateTime(0)
+}
+
 model wpjm_yoast_indexable {
   id                             Int       @id @default(autoincrement()) @db.UnsignedInt
   permalink                      String?   @db.LongText
