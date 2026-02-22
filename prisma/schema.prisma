@@ -1155,7 +1155,16 @@ model roleMenu {
   @@index([roleId], map: "fk_role")
 }
 
-model newCompanies {
+model confirmed {
+  id             String   @id @db.VarChar(255)
+  fullname       String   @db.VarChar(100)
+  phone          String   @db.VarChar(20)
+  email          String   @db.VarChar(255)
+  registereddate DateTime @default(now()) @db.DateTime(0)
+  checkedindate  DateTime @default(now()) @db.DateTime(0)
+}
+
+model newInternationalCompanies {
   Id             Int       @id @default(autoincrement()) @db.UnsignedInt
   companyName    String    @db.VarChar(255)
   fullName       String?   @db.VarChar(255)
@@ -1172,13 +1181,134 @@ model newCompanies {
   updatedAt      DateTime? @default(now()) @db.DateTime(0)
 }
 
-model confirmed {
-  id             String   @id @db.VarChar(255)
-  fullname       String   @db.VarChar(100)
-  phone          String   @db.VarChar(20)
-  email          String   @db.VarChar(255)
-  registereddate DateTime @default(now()) @db.DateTime(0)
-  checkedindate  DateTime @default(now()) @db.DateTime(0)
+model newLocalCompanies {
+  Id             Int       @id @default(autoincrement()) @db.UnsignedInt
+  companyName    String    @db.VarChar(255)
+  fullName       String?   @db.VarChar(255)
+  position       String?   @db.VarChar(100)
+  primaryEmail   String    @db.VarChar(255)
+  secondaryEmail String    @db.VarChar(255)
+  phoneNumber    String?   @db.VarChar(20)
+  sector         String?   @db.VarChar(100)
+  companyWebsite String?   @db.Text
+  socialLinks    String?   @db.Text
+  uploadLicense  String?   @db.VarChar(255)
+  type           String?   @db.VarChar(50)
+  createdAt      DateTime? @default(now()) @db.DateTime(0)
+  updatedAt      DateTime? @default(now()) @db.DateTime(0)
+}
+
+model wpjm_yoast_indexable {
+  id                             Int       @id @default(autoincrement()) @db.UnsignedInt
+  permalink                      String?   @db.LongText
+  permalink_hash                 String?   @db.VarChar(40)
+  object_id                      BigInt?
+  object_type                    String    @db.VarChar(32)
+  object_sub_type                String?   @db.VarChar(32)
+  author_id                      BigInt?
+  post_parent                    BigInt?
+  title                          String?   @db.Text
+  description                    String?   @db.MediumText
+  breadcrumb_title               String?   @db.Text
+  post_status                    String?   @db.VarChar(20)
+  is_public                      Boolean?
+  is_protected                   Boolean?  @default(false)
+  has_public_posts               Boolean?
+  number_of_pages                Int?      @db.UnsignedInt
+  canonical                      String?   @db.LongText
+  primary_focus_keyword          String?
+  primary_focus_keyword_score    Int?
+  readability_score              Int?
+  is_cornerstone                 Boolean?  @default(false)
+  is_robots_noindex              Boolean?  @default(false)
+  is_robots_nofollow             Boolean?  @default(false)
+  is_robots_noarchive            Boolean?  @default(false)
+  is_robots_noimageindex         Boolean?  @default(false)
+  is_robots_nosnippet            Boolean?  @default(false)
+  twitter_title                  String?   @db.Text
+  twitter_image                  String?   @db.LongText
+  twitter_description            String?   @db.LongText
+  twitter_image_id               String?
+  twitter_image_source           String?   @db.Text
+  open_graph_title               String?   @db.Text
+  open_graph_description         String?   @db.LongText
+  open_graph_image               String?   @db.LongText
+  open_graph_image_id            String?
+  open_graph_image_source        String?   @db.Text
+  open_graph_image_meta          String?   @db.MediumText
+  link_count                     Int?
+  incoming_link_count            Int?
+  prominent_words_version        Int?      @db.UnsignedInt
+  created_at                     DateTime? @db.DateTime(0)
+  updated_at                     DateTime  @default(now()) @db.Timestamp(0)
+  blog_id                        BigInt    @default(1)
+  language                       String?   @db.VarChar(32)
+  region                         String?   @db.VarChar(32)
+  schema_page_type               String?   @db.VarChar(64)
+  schema_article_type            String?   @db.VarChar(64)
+  has_ancestors                  Boolean?  @default(false)
+  estimated_reading_time_minutes Int?
+  version                        Int?      @default(1)
+  object_last_modified           DateTime? @db.DateTime(0)
+  object_published_at            DateTime? @db.DateTime(0)
+  inclusive_language_score       Int?
+
+  @@index([object_id, object_type], map: "object_id_and_type")
+  @@index([object_type, object_sub_type], map: "object_type_and_sub_type")
+  @@index([permalink_hash, object_type], map: "permalink_hash_and_object_type")
+  @@index([prominent_words_version, object_type, object_sub_type, post_status], map: "prominent_words")
+  @@index([object_published_at, is_robots_noindex, object_type, object_sub_type], map: "published_sitemap_index")
+  @@index([post_parent, object_type, post_status, object_id], map: "subpages")
+}
+
+model wpjm_yoast_indexable_hierarchy {
+  indexable_id Int    @db.UnsignedInt
+  ancestor_id  Int    @db.UnsignedInt
+  depth        Int?   @db.UnsignedInt
+  blog_id      BigInt @default(1)
+
+  @@id([indexable_id, ancestor_id])
+  @@index([ancestor_id], map: "ancestor_id")
+  @@index([depth], map: "depth")
+  @@index([indexable_id], map: "indexable_id")
+}
+
+model wpjm_yoast_migrations {
+  id      Int     @id @default(autoincrement()) @db.UnsignedInt
+  version String? @unique(map: "wpjm_yoast_migrations_version")
+}
+
+model wpjm_yoast_primary_term {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  post_id    BigInt?
+  term_id    BigInt?
+  taxonomy   String    @db.VarChar(32)
+  created_at DateTime? @db.DateTime(0)
+  updated_at DateTime  @default(now()) @db.Timestamp(0)
+  blog_id    BigInt    @default(1)
+
+  @@index([post_id, taxonomy], map: "post_taxonomy")
+  @@index([post_id, term_id], map: "post_term")
+}
+
+model wpjm_yoast_seo_links {
+  id                  BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  url                 String? @db.VarChar(255)
+  post_id             BigInt? @db.UnsignedBigInt
+  target_post_id      BigInt? @db.UnsignedBigInt
+  type                String? @db.VarChar(8)
+  indexable_id        Int?    @db.UnsignedInt
+  target_indexable_id Int?    @db.UnsignedInt
+  height              Int?    @db.UnsignedInt
+  width               Int?    @db.UnsignedInt
+  size                Int?    @db.UnsignedInt
+  language            String? @db.VarChar(32)
+  region              String? @db.VarChar(32)
+
+  @@index([indexable_id, type], map: "indexable_link_direction")
+  @@index([post_id, type], map: "link_direction")
+  @@index([target_indexable_id], map: "target_indexable_id_index")
+  @@index([url], map: "url_index")
 }
 
 enum wpjm_blpwp_stats_action {

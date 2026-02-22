@@ -1,10 +1,10 @@
 WITH
     cte_submissions as (
-        SELECT meta.meta_id, 
-               meta.meta_value, 
-               meta.meta_key, 
-               meta.entry_id, 
-               meta.date_created, 
+        SELECT meta.meta_id,
+               meta.meta_value,
+               meta.meta_key,
+               meta.entry_id,
+               meta.date_created,
                entry.form_id
         FROM
             wpjm_frmt_form_entry_meta as meta
@@ -12,10 +12,10 @@ WITH
         WHERE
             entry.form_id = 4783
     )
-SELECT t1.entry_id, 
-        t1.meta_value as 'fullName', 
-        t2.meta_value as email, 
-        t3.meta_value as 'phoneNo', 
+SELECT t1.entry_id,
+        t1.meta_value as 'fullName',
+        t2.meta_value as email,
+        t3.meta_value as 'phoneNo',
         t4.meta_value as 'position',
         t5.meta_value as 'companyName',
         t6.meta_value as 'companyProfile',
@@ -63,6 +63,6 @@ FROM
     LEFT JOIN cte_submissions as t16 ON t1.entry_id = t16.entry_id
     AND t16.meta_key = 'email-2'
 WHERE
-    t1.meta_key = 'name-1' AND t15.meta_value = 'International Company' AND t1.entry_id = ?
+    t1.meta_key = 'name-1' AND LOWER(t15.meta_value) = 'international company' AND t1.entry_id = ?
 GROUP BY
     t1.entry_id;

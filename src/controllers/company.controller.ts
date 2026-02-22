@@ -7,23 +7,34 @@ export class CompanyController {
 
     async create(req: Request, res: Response) {
         try {
-            const data = req.body;
-            // File upload handling would be here if using multer
+            const data = { ...req.body };
+            // Attach the uploaded file path if provided
             if (req.file) {
                 data.uploadLicense = req.file.path;
             }
 
+            if (!data.type) {
+                return res.status(400).json({ message: "Company type ('local' or 'international') is required." });
+            }
+
             const company = await this.companyService.createCompany(data);
             res.status(201).json({ message: "Company created successfully", data: company });
-        } catch (error) {
-            logger.error(error);
-            res.status(400).json({ message: "Failed to create company", error: (error as Error).message });
+        } catch (error: any) {
+            logger.error(`Failed to create company: ${error.message}`, { stack: error.stack, error });
+            res.status(500).json({
+                message: "Failed to create company",
+                error: error.message,
+                details: error.stack
+            });
         }
     }
 
     async getByType(req: Request, res: Response) {
         try {
             const { type } = req.query;
+            if (!type) {
+                return res.status(400).json({ message: "Query param 'type' is required." });
+            }
             const companies = await this.companyService.getCompaniesByType(type as string);
             res.status(200).json({ data: companies });
         } catch (error) {

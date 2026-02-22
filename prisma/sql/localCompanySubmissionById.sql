@@ -58,6 +58,6 @@ FROM
     LEFT JOIN cte_submissions as t16 ON t1.entry_id = t16.entry_id
     AND t16.meta_key = 'email-2'
 WHERE
-    t1.meta_key = 'name-1' AND t15.meta_value = 'Local Company' AND t1.entry_id = ?
+    t1.meta_key = 'name-1' AND LOWER(t15.meta_value) = 'local company' AND t1.entry_id = ?
 GROUP BY
     t1.entry_id;

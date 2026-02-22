@@ -42,6 +42,7 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/attendee', attendeeRoutes);
@@ -59,6 +60,19 @@ app.use('/api/company', companyRoute);
 app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
+
+// Error handling middleware
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  logger.error('Unhandled Error:', {
+    message: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method,
+    body: req.body
+  });
+  res.status(500).json({ message: 'Internal Server Error', error: err.message });
+});
+
 app.listen(port, () => {
   logger.info(`Server is running on http://localhost:${port}`);
 });

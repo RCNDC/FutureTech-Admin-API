@@ -7,12 +7,12 @@ WITH
         WHERE
             entry.form_id = 4783
     )
-SELECT t1.entry_id, 
-       t1.meta_value as 'fullName', 
+SELECT t1.entry_id,
+       t1.meta_value as 'fullName',
        t2.meta_value as email,
-       t6.meta_value as companyEmail, 
-       t3.meta_value as 'phoneNo', 
-       t5.meta_value as 'companyName', 
+       t6.meta_value as companyEmail,
+       t3.meta_value as 'phoneNo',
+       t5.meta_value as 'companyName',
        t1.date_created as 'registeredDate'
 FROM
     cte_submissions as t1
@@ -27,6 +27,6 @@ FROM
     LEFT JOIN cte_submissions as t6 ON t1.entry_id = t6.entry_id
     and t6.meta_key = 'email-2'
 WHERE
-    t1.meta_key = 'name-1' AND (t4.meta_value = 'Local Company')
+    t1.meta_key = 'name-1' AND LOWER(t4.meta_value) = 'local company'
 GROUP BY
     t1.entry_id;
