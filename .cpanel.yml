@@ -2,11 +2,9 @@
 deployment:
   tasks:
     - echo "--- API Deployment Started ---" > deploy.log
-    - export PATH=$PATH:/opt/alt/alt-nodejs20/root/usr/bin:/opt/cpanel/ea-nodejs20/bin
-    - NPM_PATH=$(which npm)
-    - echo "Detected npm at: $NPM_PATH" >> deploy.log
-    - $NPM_PATH install >> deploy.log 2>&1
-    - $NPM_PATH run build >> deploy.log 2>&1
+    - echo "Current Dir: $(pwd)" >> deploy.log
+    - /opt/alt/alt-nodejs20/root/usr/lib/node_modules/corepack/shims/npm install >> deploy.log 2>&1
+    - /opt/alt/alt-nodejs20/root/usr/lib/node_modules/corepack/shims/npm run build >> deploy.log 2>&1
     - mkdir -p tmp
     - touch tmp/restart.txt
     - echo "--- API Deployment Finished ---" >> deploy.log
