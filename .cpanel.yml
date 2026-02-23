@@ -1,0 +1,8 @@
+---
+deployment:
+  tasks:
+    - export PATH=/opt/cpanel/ea-nodejs20/bin:$PATH
+    - npm install
+    - npm run build
+    - mkdir -p tmp
+    - touch tmp/restart.txt

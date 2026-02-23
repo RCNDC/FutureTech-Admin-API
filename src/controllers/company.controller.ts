@@ -17,7 +17,8 @@ export class CompanyController {
                 return res.status(400).json({ message: "Company type ('local' or 'international') is required." });
             }
 
-            const company = await this.companyService.createCompany(data);
+            const creatorId = req.user?.userId || "";
+            const company = await this.companyService.createCompany(data, creatorId);
             res.status(201).json({ message: "Company created successfully", data: company });
         } catch (error: any) {
             logger.error(`Failed to create company: ${error.message}`, { stack: error.stack, error });

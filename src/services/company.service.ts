@@ -1,10 +1,37 @@
 import { db } from "../util/config/db";
 
 export class CompanyService {
-    async createCompany(data: any) {
+    async createCompany(data: any, creatorId: string) {
         console.log("Creating company with data:", JSON.stringify(data, null, 2));
         const { type, ...companyData } = data;
         try {
+            // Check for duplicates in both tables
+            const [existingLocal, existingInt] = await Promise.all([
+                db.newLocalCompanies.findFirst({
+                    where: {
+                        OR: [
+                            { companyName: { equals: companyData.companyName } },
+                            { primaryEmail: { equals: companyData.primaryEmail } }
+                        ]
+                    }
+                }),
+                db.newInternationalCompanies.findFirst({
+                    where: {
+                        OR: [
+                            { companyName: { equals: companyData.companyName } },
+                            { primaryEmail: { equals: companyData.primaryEmail } }
+                        ]
+                    }
+                })
+            ]);
+
+            if (existingLocal || existingInt) {
+                const dup = existingLocal || existingInt;
+                const reason = dup?.companyName.toLowerCase() === companyData.companyName.toLowerCase()
+                    ? `Company "${companyData.companyName}" is already registered.`
+                    : `Email "${companyData.primaryEmail}" is already registered.`;
+                throw new Error(reason);
+            }
 
             if (type === 'local') {
                 return await db.newLocalCompanies.create({
@@ -19,6 +46,7 @@ export class CompanyService {
                         companyWebsite: companyData.companyWebsite || null,
                         socialLinks: companyData.socialLinks || null,
                         uploadLicense: companyData.uploadLicense || null,
+                        createdById: creatorId,
                         type: 'local',
                     }
                 });
@@ -35,6 +63,7 @@ export class CompanyService {
                         companyWebsite: companyData.companyWebsite || null,
                         socialLinks: companyData.socialLinks || null,
                         uploadLicense: companyData.uploadLicense || null,
+                        createdById: creatorId,
                         type: 'international',
                     }
                 });

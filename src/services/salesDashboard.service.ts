@@ -2,21 +2,61 @@ import { db } from "../util/config/db";
 import { genSaltSync, hashSync } from "bcrypt";
 import logger from "../util/logger";
 
+// Role IDs
+const ADMIN_ROLE = 3;
+const LOCAL_SALES_ROLE = 25;
+const INT_SALES_ROLE = 29;
+
 export class SalesDashboardService {
-    async getAllSales(query?: string) {
+
+    /**
+     * Returns sales records based on role:
+     *   - Admin (3): sees every sales record, optionally filtered by roleId or query
+     *   - Local Sales (25): sees ONLY their own record (no peer data, no international data)
+     *   - International Sales (29): sees ONLY their own record (no peer data, no local data)
+     */
+    async getAllSales(userId: string, roleId: number, query?: string) {
         const where: any = {};
-        if (query) {
-            where.OR = [
-                { salesPersonName: { contains: query } },
-                { email: { contains: query } }
-            ];
+
+        if (roleId === ADMIN_ROLE) {
+            // Admins can filter by sub-type and search query
+            if (query) {
+                where.OR = [
+                    { salesPersonName: { contains: query } },
+                    { email: { contains: query } },
+                ];
+            }
+        } else if (roleId === LOCAL_SALES_ROLE) {
+            // Local sales: only their own profile, cannot see international sales
+            where.salesId = !isNaN(Number(userId)) ? Number(userId) : -1;
+            where.roleId = LOCAL_SALES_ROLE;
+        } else if (roleId === INT_SALES_ROLE) {
+            // International sales: only their own profile, cannot see local sales
+            where.salesId = !isNaN(Number(userId)) ? Number(userId) : -1;
+            where.roleId = INT_SALES_ROLE;
+        } else {
+            // Any other unrecognised role: see nothing
+            return [];
         }
-        return await db.sales_dashboard.findMany({
-            where
-        });
+
+        return await db.sales_dashboard.findMany({ where });
     }
 
-    async createSales(data: any) {
+    /**
+     * Returns the profile of the currently logged-in sales person.
+     * Admin can use this too but primarily intended for sales users.
+     */
+    async getSalesProfile(userId: string, roleId: number) {
+        if (roleId === ADMIN_ROLE) {
+            // Admins use getAllSales, but we support this call too
+            return null;
+        }
+        const salesId = Number(userId);
+        if (isNaN(salesId)) return null;
+        return await db.sales_dashboard.findUnique({ where: { salesId } });
+    }
+
+    async createSales(data: any, creatorId: string) {
         const hashedPassword = hashSync(data.password, genSaltSync(10));
         return await db.sales_dashboard.create({
             data: {
@@ -25,14 +65,16 @@ export class SalesDashboardService {
                 password: hashedPassword,
                 roleId: Number(data.roleId),
                 salaryAmount: data.salaryAmount || 0,
-                companyId: data.companyId || null
-            }
+                companyId: data.companyId || null,
+                createdBy: creatorId,
+                isActive: true,
+            },
         });
     }
 
     async getSalesById(id: number) {
         return await db.sales_dashboard.findUnique({
-            where: { salesId: id }
+            where: { salesId: id },
         });
     }
 
@@ -48,14 +90,38 @@ export class SalesDashboardService {
                 password: data.password,
                 roleId: data.roleId ? Number(data.roleId) : undefined,
                 salaryAmount: data.salaryAmount,
-                companyId: data.companyId
-            }
+                companyId: data.companyId,
+            },
         });
     }
 
-    async deleteSales(id: number) {
-        return await db.sales_dashboard.delete({
-            where: { salesId: id }
+    /**
+     * ADMIN-ONLY hard soft-delete (keeps record + companies intact).
+     * The password is scrambled so the account can no longer log in,
+     * and isActive is set to false.
+     */
+    async adminDeactivateSales(id: number) {
+        return await db.sales_dashboard.update({
+            where: { salesId: id },
+            data: {
+                isActive: false,
+                password: "DEACTIVATED_" + Date.now(),
+            },
+        });
+    }
+
+    /**
+     * Self-deactivation: a sales person deletes their own account.
+     * Only the password is scrambled and isActive set to false.
+     * All profile data and registered companies remain intact for admin view.
+     */
+    async selfDeactivate(salesId: number) {
+        return await db.sales_dashboard.update({
+            where: { salesId },
+            data: {
+                isActive: false,
+                password: "DEACTIVATED_" + Date.now(),
+            },
         });
     }
 }

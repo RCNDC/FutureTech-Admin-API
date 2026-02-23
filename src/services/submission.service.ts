@@ -62,7 +62,8 @@ export class SubmissionService {
       sector: c.sector || "",
     }));
   }
-  async getNGOSubmissions() {
+  async getNGOSubmissions(roleId: number) {
+    if (roleId !== 3) return [];
     try {
       const submissions = await db.$queryRawTyped(ngoSubmission());
       const sortedSub = await this.sortByCompletedSubmissions(submissions);
@@ -72,7 +73,8 @@ export class SubmissionService {
     }
   }
 
-  async getNGOSubmissionsById(entry_id: bigint) {
+  async getNGOSubmissionsById(entry_id: bigint, roleId: number) {
+    if (roleId !== 3) return [];
     try {
       const submission = await db.$queryRawTyped(ngoSubmissionById(entry_id));
       return CastBigIntFromJson(submission);
@@ -81,26 +83,37 @@ export class SubmissionService {
     }
   }
 
-  async getLocalCompanySubmissions() {
+  async getLocalCompanySubmissions(userId: string, roleId: number) {
+    if (roleId === 29) return []; // International Sales cannot access Local
     try {
       const submissions = await db.$queryRawTyped(localCompanySubmission());
-      const manualCompanies: any[] = await db.$queryRawUnsafe(
-        "SELECT * FROM `newLocalCompanies` WHERE `type` = ?",
-        "local",
-      );
+
+      let manualCompanies: any[];
+      if (roleId === 3) { // Admin
+        manualCompanies = await db.$queryRawUnsafe(
+          "SELECT * FROM `newLocalCompanies` WHERE `type` = ?",
+          "local",
+        );
+      } else {
+        manualCompanies = await db.$queryRawUnsafe(
+          "SELECT * FROM `newLocalCompanies` WHERE `type` = ? AND `createdById` = ?",
+          "local",
+          userId
+        );
+      }
+
       const mappedManual = this.mapNewCompanies(manualCompanies);
 
-      console.log(`Local submissions from Forminator: ${submissions.length}`);
-      console.log(`Local companies from manual table: ${manualCompanies.length}`);
-      const combined = [...submissions, ...mappedManual];
-      console.log(`Total combined local submissions: ${combined.length}`);
-      const sortedSub = await this.sortByCompletedSubmissions(combined);
+      // Isolation: For sales roles, only show their manual entries. Forminator data is for admins.
+      const dataToProcess = roleId === 3 ? [...submissions, ...mappedManual] : mappedManual;
+
+      const sortedSub = await this.sortByCompletedSubmissions(dataToProcess);
       return CastBigIntFromJson(sortedSub);
     } catch (err) {
       logger.error(err + "");
     }
   }
-  async getLocalCompanySubmissionById(entry_id: bigint) {
+  async getLocalCompanySubmissionById(entry_id: bigint, userId: string, roleId: number) {
     try {
       const submission = await db.$queryRawTyped(
         localCompanySubmissionById(entry_id),
@@ -109,12 +122,19 @@ export class SubmissionService {
         return CastBigIntFromJson(submission);
       }
 
+      // Try manual
       const manualArr: any[] = await db.$queryRawUnsafe(
         "SELECT * FROM `newLocalCompanies` WHERE `Id` = ?",
         Number(entry_id),
       );
+
       if (manualArr && manualArr.length > 0) {
-        return CastBigIntFromJson(this.mapNewCompanies([manualArr[0]]));
+        const company = manualArr[0];
+        // Isolation check for manual entries
+        if (roleId !== 3 && company.createdById !== userId) {
+          return []; // Not authorized
+        }
+        return CastBigIntFromJson(this.mapNewCompanies([company]));
       }
 
       const manualIntArr: any[] = await db.$queryRawUnsafe(
@@ -122,7 +142,11 @@ export class SubmissionService {
         Number(entry_id),
       );
       if (manualIntArr && manualIntArr.length > 0) {
-        return CastBigIntFromJson(this.mapNewCompanies([manualIntArr[0]]));
+        const company = manualIntArr[0];
+        if (roleId !== 3 && company.createdById !== userId) {
+          return [];
+        }
+        return CastBigIntFromJson(this.mapNewCompanies([company]));
       }
       return [];
     } catch (err) {
@@ -130,28 +154,39 @@ export class SubmissionService {
     }
   }
 
-  async getInternationalCompanySubmissions() {
+  async getInternationalCompanySubmissions(userId: string, roleId: number) {
+    if (roleId === 25) return []; // Local Sales cannot access International
     try {
       const submissions = await db.$queryRawTyped(
         internationalCompanySubmission(),
       );
-      const manualCompanies: any[] = await db.$queryRawUnsafe(
-        "SELECT * FROM `newInternationalCompanies` WHERE `type` = ?",
-        "international",
-      );
+
+      let manualCompanies: any[];
+      if (roleId === 3) { // Admin
+        manualCompanies = await db.$queryRawUnsafe(
+          "SELECT * FROM `newInternationalCompanies` WHERE `type` = ?",
+          "international",
+        );
+      } else {
+        manualCompanies = await db.$queryRawUnsafe(
+          "SELECT * FROM `newInternationalCompanies` WHERE `type` = ? AND `createdById` = ?",
+          "international",
+          userId
+        );
+      }
+
       const mappedManual = this.mapNewCompanies(manualCompanies);
 
-      console.log(`International submissions from Forminator: ${submissions.length}`);
-      console.log(`International companies from manual table: ${manualCompanies.length}`);
-      const combined = [...submissions, ...mappedManual];
-      console.log(`Total combined international submissions: ${combined.length}`);
-      const sortedSub = await this.sortByCompletedSubmissions(combined);
+      // Isolation: For sales roles, only show their manual entries. Forminator data is for admins.
+      const dataToProcess = roleId === 3 ? [...submissions, ...mappedManual] : mappedManual;
+
+      const sortedSub = await this.sortByCompletedSubmissions(dataToProcess);
       return CastBigIntFromJson(sortedSub);
     } catch (err) {
       logger.error(err + "");
     }
   }
-  async getInternationalCompanySubmission(entry_id: bigint) {
+  async getInternationalCompanySubmission(entry_id: bigint, userId: string, roleId: number) {
     try {
       const submission = await db.$queryRawTyped(
         internationalCompanySubmissionById(entry_id),
@@ -165,7 +200,11 @@ export class SubmissionService {
         Number(entry_id),
       );
       if (manualArr && manualArr.length > 0) {
-        return CastBigIntFromJson(this.mapNewCompanies([manualArr[0]]));
+        const company = manualArr[0];
+        if (roleId !== 3 && company.createdById !== userId) {
+          return [];
+        }
+        return CastBigIntFromJson(this.mapNewCompanies([company]));
       }
 
       const manualLocArr: any[] = await db.$queryRawUnsafe(
@@ -173,7 +212,11 @@ export class SubmissionService {
         Number(entry_id),
       );
       if (manualLocArr && manualLocArr.length > 0) {
-        return CastBigIntFromJson(this.mapNewCompanies([manualLocArr[0]]));
+        const company = manualLocArr[0];
+        if (roleId !== 3 && company.createdById !== userId) {
+          return [];
+        }
+        return CastBigIntFromJson(this.mapNewCompanies([company]));
       }
       return [];
     } catch (err) {
@@ -200,7 +243,8 @@ export class SubmissionService {
       logger.error(err + "");
     }
   }
-  async getEmabassySubmissions() {
+  async getEmabassySubmissions(roleId: number) {
+    if (roleId !== 3) return [];
     try {
       const submissions = await db.$queryRawTyped(embassySubmission());
       const sortedSub = await this.sortByCompletedSubmissions(submissions);
@@ -209,7 +253,8 @@ export class SubmissionService {
       logger.error(err + "");
     }
   }
-  async getEmabassySubmissionsById(entry_id: bigint) {
+  async getEmabassySubmissionsById(entry_id: bigint, roleId: number) {
+    if (roleId !== 3) return [];
     try {
       const submission = await db.$queryRawTyped(
         embassySubmissionById(entry_id),
@@ -219,7 +264,8 @@ export class SubmissionService {
       logger.error(err + "");
     }
   }
-  async getStartupSubmissions() {
+  async getStartupSubmissions(roleId: number) {
+    if (roleId !== 3) return [];
     try {
       const submissions = await db.$queryRawTyped(startupSubmission());
       const sortedSub = await this.sortByCompletedSubmissions(submissions);
@@ -228,7 +274,8 @@ export class SubmissionService {
       logger.error(err + "");
     }
   }
-  async getStartupSubmissionsById(entry_id: bigint) {
+  async getStartupSubmissionsById(entry_id: bigint, roleId: number) {
+    if (roleId !== 3) return [];
     try {
       const submissions = await db.$queryRawTyped(
         startupSubmissionById(entry_id),

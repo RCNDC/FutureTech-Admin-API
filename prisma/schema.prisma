@@ -1179,6 +1179,7 @@ model newInternationalCompanies {
   type           String?   @db.VarChar(50)
   createdAt      DateTime? @default(now()) @db.DateTime(0)
   updatedAt      DateTime? @default(now()) @db.DateTime(0)
+  createdById    String?   @db.VarChar(255)
 }
 
 model newLocalCompanies {
@@ -1196,6 +1197,7 @@ model newLocalCompanies {
   type           String?   @db.VarChar(50)
   createdAt      DateTime? @default(now()) @db.DateTime(0)
   updatedAt      DateTime? @default(now()) @db.DateTime(0)
+  createdById    String?   @db.VarChar(255)
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -1209,6 +1211,8 @@ model sales_dashboard {
   salaryAmount    Decimal   @default(0.00) @db.Decimal(15, 2)
   createdAt       DateTime? @default(now()) @db.DateTime(0)
   updatedAt       DateTime? @default(now()) @db.DateTime(0)
+  createdBy       String?   @db.VarChar(255)
+  isActive        Boolean   @default(true)
 }
 
 model wpjm_yoast_indexable {

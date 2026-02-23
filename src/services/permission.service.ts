@@ -7,23 +7,40 @@ export class PermissionService {
     constructor() { }
 
     async getMenuByRoleId(roleId: number) {
-        // Implementation to get menu by role ID
         if (!roleId) {
             throw new Error('Missing role Id');
         }
         try {
-            const menus = await this.getMenuChildByRoleId(roleId);
-            const parentmenus = await db.menus.findMany({
-                where: {
-                    parent: 0
+            // Get menus specifically assigned to this role
+            const assignedMenus = await this.getMenuChildByRoleId(roleId);
+
+            // Collect all assigned menus and their parents to build a complete path
+            const menuMap = new Map<number, any>();
+
+            for (const menu of assignedMenus) {
+                if (!menu) continue;
+                menuMap.set(menu.id, menu);
+
+                // Recursively fetch parents if they aren't in the map yet
+                let currentParentId = menu.parent;
+                while (currentParentId !== 0 && currentParentId !== null) {
+                    if (currentParentId === undefined) break;
+                    if (menuMap.has(currentParentId)) break;
+
+                    const parent = await db.menus.findUnique({
+                        where: { id: currentParentId as number }
+                    });
+
+                    if (parent) {
+                        menuMap.set(parent.id, parent);
+                        currentParentId = parent.parent;
+                    } else {
+                        break;
+                    }
                 }
-            })
+            }
 
-            // Combine and filter duplicates by ID
-            const combined = [...menus, ...parentmenus];
-            const uniqueMenus = Array.from(new Map(combined.map(item => [item.id, item])).values());
-
-            return uniqueMenus;
+            return Array.from(menuMap.values());
         } catch (err) {
             logger.error('Error fetching menus by role ID:', err);
             if (err instanceof PrismaClientKnownRequestError) {
