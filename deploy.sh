@@ -10,13 +10,16 @@ NPM_PATH="/opt/alt/alt-nodejs20/root/usr/lib/node_modules/corepack/shims/npm"
 # Add node to the path so npm can find it
 export PATH="$NODE_BIN_DIR:$PATH"
 
+# FIX for cPanel Memory Limits: Limit RAM and disable Wasm-based fetch
+export NODE_OPTIONS="--max-old-space-size=512 --no-experimental-fetch"
+
 echo "--- API Deployment Started: $(date) ---" > $LOG_FILE
 echo "Node version: $(node -v)" >> $LOG_FILE
 echo "Current Directory: $PWD" >> $LOG_FILE
 
-# Install dependencies
+# Install dependencies (with memory-saving flags)
 echo "Starting npm install..." >> $LOG_FILE
-$NPM_PATH install >> $LOG_FILE 2>&1
+$NPM_PATH install --no-audit --no-fund --prefer-offline >> $LOG_FILE 2>&1
 
 # Build the project
 echo "Starting npm build..." >> $LOG_FILE
