@@ -8,23 +8,23 @@ import { JwtService } from "./jwt.service";
 import { MailService } from "./mail.service";
 import { genSalt, genSaltSync, hashSync } from "bcrypt";
 
-export class UserService{
+export class UserService {
     private mailService;
     private jwtService;
-    constructor(){
+    constructor() {
         this.mailService = new MailService()
         this.jwtService = new JwtService()
     }
 
-    async getUserById(userId:string): Promise<any>{
-        if(!userId){
+    async getUserById(userId: string): Promise<any> {
+        if (!userId) {
             throw new Error("User id missing");
         }
         const user = await db.dashboard_user.findUnique({
-            where:{
+            where: {
                 id: userId
             },
-            select:{
+            select: {
                 email: true,
                 password: true,
                 createdAt: true,
@@ -33,7 +33,7 @@ export class UserService{
                 isNew: true
             }
         });
-        if(!user){
+        if (!user) {
             throw new Error("user not found");
         }
         return user;
@@ -54,19 +54,19 @@ export class UserService{
         return users;
     }
 
-    async getUserByEmail(email:string){
-        if(!email){
+    async getUserByEmail(email: string) {
+        if (!email) {
             throw new Error("Email required");
         }
         const user = await db.dashboard_user.findUnique({
-            where:{
+            where: {
                 email: email
             }
         });
-        if(!user){
+        if (!user) {
             throw new Error("User not found");
         }
-        if(user.isLocked){
+        if (user.isLocked) {
             throw new Error("User is locked");
         }
 
@@ -122,97 +122,96 @@ export class UserService{
     }
 
     async editUser(userId: string, data: Partial<User>, editorId: string): Promise<User> {
-      logger.info('Editing user with id', userId);
-      if (!userId) {
-        throw new Error("User id is missing")
-      }
-      try {
-          const updateData: any = {};
-          if (data.isLocked !== undefined) {
-            updateData.isLocked = data.isLocked ? 1 : 0;
-          }
-          if (data.roleId !== undefined) {
-            updateData.roleId = data.roleId;
-          }
-
-          updateData.updatedBy = editorId;
-          updateData.updatedAt = new Date();
-
-          const updatedUser = await db.dashboard_user.update({
-            where: {
-              id: userId
-            },
-            data: updateData
-          });
-          logger.info('User edited successfully', updatedUser);
-          return updatedUser;
-      } catch (e) {
-        if (e instanceof PrismaClientKnownRequestError) {
-            logger.error(e);
-            throw new Error("Something went wrong. Please try again");
+        logger.info('Editing user with id', userId);
+        if (!userId) {
+            throw new Error("User id is missing")
         }
-        throw e;
-      }
+        try {
+            const updateData: any = {};
+            if (data.isLocked !== undefined) {
+                updateData.isLocked = data.isLocked ? 1 : 0;
+            }
+            if (data.roleId !== undefined) {
+                updateData.roleId = data.roleId;
+            }
+
+            updateData.updatedBy = editorId;
+            updateData.updatedAt = new Date();
+
+            const updatedUser = await db.dashboard_user.update({
+                where: {
+                    id: userId
+                },
+                data: updateData
+            });
+            logger.info('User edited successfully', updatedUser);
+            return updatedUser;
+        } catch (e) {
+            if (e instanceof PrismaClientKnownRequestError) {
+                logger.error(e);
+                throw new Error("Something went wrong. Please try again");
+            }
+            throw e;
+        }
     }
 
-    async sendResetEmail(email:string){
-        try{
-            const resetToken = this.jwtService.sign({userId: await generateId(), email:email, role: null}, 86400)
-            const htmlContent = forgotEmailTemplate(email,`${process.env.FRONTEND_URL}/reset-password/${resetToken}`);
-            await this.mailService.sendMail(email,"Forgot password", '',htmlContent);
+    async sendResetEmail(email: string) {
+        try {
+            const resetToken = this.jwtService.sign({ userId: await generateId(), email: email, role: null }, 86400)
+            const htmlContent = forgotEmailTemplate(email, `${process.env.FRONTEND_URL}/reset-password/${resetToken}`);
+            await this.mailService.sendMail(email, "Forgot password", '', htmlContent);
             return 'success';
-        }catch(error){
-            logger.error(error+'')
+        } catch (error) {
+            logger.error(error + '')
             return error;
         }
     }
-    async verifyResetToken(token:string){
-        if(!token){
+    async verifyResetToken(token: string) {
+        if (!token) {
             logger.error('token missing in verify reset');
             throw new Error('Token missing');
         }
-        try{
-            const verify =  this.jwtService.verify(token);
+        try {
+            const verify = this.jwtService.verify(token);
             return 'success';
 
 
-        }catch(error){
+        } catch (error) {
             logger.error(error);
             return 'error';
         }
     }
-    async tokenPayload(token:string){
-        try{
+    async tokenPayload(token: string) {
+        try {
             const payload = this.jwtService.verify(token);
             return payload;
-        }catch(error){
+        } catch (error) {
             logger.error(error)
             return;
         }
     }
-    async updatePasswordByEmail(email:string, password:string){
-        if(!email)
-        {
+    async updatePasswordByEmail(email: string, password: string) {
+        if (!email) {
             throw new Error('Email Missing');
         }
-        if(!password) throw new Error('Password Missing')
+        if (!password) throw new Error('Password Missing')
         const user = await this.getUserByEmail(email);
-        if(!user) throw new Error('User not Found');
+        if (!user) throw new Error('User not Found');
 
         const hashedPassword = hashSync(password, genSaltSync(10));
         user.password = hashedPassword;
         user.updatedAt = new Date();
 
-        try{
+        try {
             await db.dashboard_user.update({
-                where:{
+                where: {
                     id: user.id,
                 },
                 data: user
             });
             return 'success';
 
-        }catch(error){
+        } catch (error) {
             logger.error(error);
             return 'error';
         }

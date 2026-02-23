@@ -1,7 +1,8 @@
 import { Role } from "../services/role.service";
 
 export type User = {
-    email:string,
+    id?: string,
+    email: string,
     password: string,
     isLocked: number,
     createdAt: Date,

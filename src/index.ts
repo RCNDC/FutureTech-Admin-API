@@ -17,6 +17,7 @@ import roleRoutes from './routes/Role/route';
 import menuRoute from './routes/Menu/route';
 import permissionRoutes from './routes/Permission/route';
 import companyRoute from './routes/Company/route';
+import salesDashboardRoutes from './routes/SalesDashboard/route';
 
 const app = express();
 
@@ -57,6 +58,7 @@ app.use('/api/upload', uploadRouter);
 app.use('/api/role', roleRoutes);
 app.use('/api/permission', permissionRoutes);
 app.use('/api/company', companyRoute);
+app.use('/api/sales-dashboard', salesDashboardRoutes);
 app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
