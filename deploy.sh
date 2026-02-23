@@ -3,15 +3,15 @@
 set -e
 
 LOG_FILE="deploy.log"
-# Correct binary paths for CloudLinux
-NODE_BIN_DIR="/opt/alt/alt-nodejs20/root/usr/bin"
-NPM_PATH="/opt/alt/alt-nodejs20/root/usr/lib/node_modules/corepack/shims/npm"
+# Correct binary paths for Node 18 (More stable on cPanel)
+NODE_BIN_DIR="/opt/alt/alt-nodejs18/root/usr/bin"
+NPM_PATH="/opt/alt/alt-nodejs18/root/usr/bin/npm"
 
-# Add node to the path so npm can find it
+# Add node to the path
 export PATH="$NODE_BIN_DIR:$PATH"
 
-# FIX for cPanel Memory Limits: Limit RAM and disable Wasm-based fetch
-export NODE_OPTIONS="--max-old-space-size=512 --no-experimental-fetch"
+# Limit RAM to avoid system kills
+export NODE_OPTIONS="--max-old-space-size=512"
 
 echo "--- API Deployment Started: $(date) ---" > $LOG_FILE
 echo "Node version: $(node -v)" >> $LOG_FILE
