@@ -1,10 +1,4 @@
 ---
 deployment:
   tasks:
-    - echo "--- API Deployment Started ---" > deploy.log
-    - echo "Current Dir: $(pwd)" >> deploy.log
-    - /opt/alt/alt-nodejs20/root/usr/lib/node_modules/corepack/shims/npm install >> deploy.log 2>&1
-    - /opt/alt/alt-nodejs20/root/usr/lib/node_modules/corepack/shims/npm run build >> deploy.log 2>&1
-    - mkdir -p tmp
-    - touch tmp/restart.txt
-    - echo "--- API Deployment Finished ---" >> deploy.log
+    - /bin/bash deploy.sh
