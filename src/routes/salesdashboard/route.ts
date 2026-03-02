@@ -34,6 +34,20 @@ salesDashboardRoutes.delete(
     (req: Request, res: Response) => salesController.deleteSales(req, res)
 );
 
+// PATCH — Admin re-activates a sales account
+salesDashboardRoutes.patch(
+    "/reactivate/:id",
+    [AuthAPIKey, AuthGuard],
+    (req: Request, res: Response) => salesController.reactivateSales(req, res)
+);
+
+// DELETE — Admin PERMANENTLY deletes a sales account (companies preserved)
+salesDashboardRoutes.delete(
+    "/hard-delete/:id",
+    [AuthAPIKey, AuthGuard],
+    (req: Request, res: Response) => salesController.hardDeleteSales(req, res)
+);
+
 // DELETE — Sales person self-deactivates their OWN account (profile + companies preserved for admin)
 salesDashboardRoutes.delete(
     "/leave",

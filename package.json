@@ -4,10 +4,11 @@
   "description": "api to handle event related data",
   "main": "dist/index.js",
   "scripts": {
-    "postinstall": "npx prisma generate",
     "test": "jest",
     "build": "tsc",
     "start": "node dist/index.js",
+    "generate": "prisma generate",
+    "fix": "node fix-prisma.js",
     "dev": "nodemon src/index.ts",
     "lint": "eslint \"src/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" --fix"

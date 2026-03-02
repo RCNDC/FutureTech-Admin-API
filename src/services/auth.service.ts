@@ -27,7 +27,7 @@ export class AuthService {
             email: signupDto.email,
             password: hashSync(signupDto.password, genSaltSync(10)),
             createdAt: new Date(),
-            roleId: 0,
+            roleId: null,
             updatedAt: new Date(),
             isLocked: 0,
             isNew: 1,
@@ -83,10 +83,20 @@ export class AuthService {
             }
 
             // --- Second: check sales_dashboard (local & international sales) ---
-            const salesUsers: any[] = await db.$queryRawUnsafe(
-                'SELECT * FROM `sales_dashboard` WHERE `email` = ? LIMIT 1',
-                loginDto.email
-            );
+            let salesUsers: any[] = [];
+            try {
+                salesUsers = await db.$queryRawUnsafe(
+                    'SELECT * FROM `sales_dashboard` WHERE `email` = ? LIMIT 1',
+                    loginDto.email
+                );
+            } catch (salesQueryError) {
+                logger.error('Error querying sales_dashboard during login', {
+                    email: loginDto.email,
+                    error: salesQueryError instanceof Error ? salesQueryError.message : String(salesQueryError),
+                    stack: salesQueryError instanceof Error ? salesQueryError.stack : undefined
+                });
+                throw salesQueryError;
+            }
 
             if (salesUsers && salesUsers.length > 0) {
                 const salesUser = salesUsers[0];
@@ -119,12 +129,35 @@ export class AuthService {
             logger.error('User not found with email: ' + loginDto.email);
             throw new Error('Invalid email or password');
 
-        } catch (err: any) {
-            if (err instanceof PrismaClientKnownRequestError || err instanceof PrismaClientInitializationError) {
-                logger.error('Error finding user: ' + err + ' with email: ' + loginDto.email);
-                throw new Error('Something went wrong. Please try again!');
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                const passthroughMessages = new Set([
+                    'Email and password are required',
+                    'User account is locked',
+                    'Invalid email or password',
+                    'Your account has been deactivated. Please contact your administrator.',
+                ]);
+                if (passthroughMessages.has(err.message)) {
+                    throw err;
+                }
             }
-            throw new Error(err);
+
+            if (err instanceof PrismaClientKnownRequestError || err instanceof PrismaClientInitializationError) {
+                logger.error('Prisma error during login', {
+                    email: loginDto.email,
+                    code: err instanceof PrismaClientKnownRequestError ? err.code : 'INIT_ERROR',
+                    message: err.message,
+                    stack: err.stack
+                });
+                throw new Error('Database connection error. Please try again later.');
+            }
+
+            logger.error('Unexpected error during login', {
+                email: loginDto.email,
+                error: err instanceof Error ? err.message : String(err),
+                stack: err instanceof Error ? err.stack : undefined
+            });
+            throw new Error('Something went wrong. Please try again!');
         }
     }
 

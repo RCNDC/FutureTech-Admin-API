@@ -1,9 +1,37 @@
 import { db } from "../util/config/db";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import logger from "../util/logger";
 
 export class CompanyService {
     async createCompany(data: any, creatorId: string) {
-        console.log("Creating company with data:", JSON.stringify(data, null, 2));
-        const { type, ...companyData } = data;
+        const { type, ...rawCompanyData } = data;
+        const companyData = Object.fromEntries(
+            Object.entries(rawCompanyData).map(([key, value]) => [
+                key,
+                typeof value === "string" ? value.trim() : value,
+            ]),
+        ) as Record<string, any>;
+
+        // Coerce uploadLicense: if it's an object (e.g. empty {} from file input) or empty, set to null
+        if (
+            companyData.uploadLicense === null ||
+            companyData.uploadLicense === undefined ||
+            companyData.uploadLicense === "" ||
+            (typeof companyData.uploadLicense === "object")
+        ) {
+            companyData.uploadLicense = null;
+        }
+
+        if (!companyData.companyName) {
+            throw new Error("Company name is required.");
+        }
+        if (!companyData.primaryEmail) {
+            throw new Error("Primary email is required.");
+        }
+        if (!companyData.secondaryEmail) {
+            throw new Error("Secondary email is required.");
+        }
+
         try {
             // Check for duplicates in both tables
             const [existingLocal, existingInt] = await Promise.all([
@@ -27,7 +55,7 @@ export class CompanyService {
 
             if (existingLocal || existingInt) {
                 const dup = existingLocal || existingInt;
-                const reason = dup?.companyName.toLowerCase() === companyData.companyName.toLowerCase()
+                const reason = dup?.companyName.toLowerCase() === String(companyData.companyName).toLowerCase()
                     ? `Company "${companyData.companyName}" is already registered.`
                     : `Email "${companyData.primaryEmail}" is already registered.`;
                 throw new Error(reason);
@@ -70,8 +98,20 @@ export class CompanyService {
             } else {
                 throw new Error(`Invalid company type: "${type}". Must be "local" or "international".`);
             }
-        } catch (error) {
-            console.error("Error in createCompany service:", error);
+        } catch (error: unknown) {
+            if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
+                throw new Error("Company name or email is already registered.");
+            }
+
+            logger.error("Error in createCompany service", {
+                error: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+                companyName: companyData.companyName,
+                primaryEmail: companyData.primaryEmail,
+                type,
+                createdById: creatorId,
+            });
+
             throw error;
         }
     }

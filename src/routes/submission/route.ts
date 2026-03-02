@@ -29,6 +29,7 @@ submissionRoute.delete('/submission/conference/:id', [AuthAPIKey, AuthGuard], (r
 
 
 submissionRoute.get('/submission/stat', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => submissionController.getSubmissionStat(req, res));
+submissionRoute.get('/submission/chart', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => submissionController.getSubmissionChart(req, res));
 
 
 

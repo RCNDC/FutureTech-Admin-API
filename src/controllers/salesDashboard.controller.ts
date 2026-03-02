@@ -84,6 +84,38 @@ export class SalesDashboardController {
         }
     }
 
+    /** PATCH /sales-dashboard/reactivate/:id — Admin only */
+    async reactivateSales(req: Request, res: Response) {
+        try {
+            const roleId = Number(req.user?.role) || 0;
+            if (roleId !== ADMIN_ROLE) {
+                return res.status(403).json({ message: "Only administrators can reactivate accounts." });
+            }
+            const { id } = req.params;
+            const result = await this.salesService.reactivateSales(Number(id));
+            res.status(200).json({ message: "Sales account reactivated successfully", data: result });
+        } catch (error) {
+            logger.error(error);
+            res.status(400).json({ message: (error as Error).message });
+        }
+    }
+
+    /** DELETE /sales-dashboard/hard-delete/:id — Admin only */
+    async hardDeleteSales(req: Request, res: Response) {
+        try {
+            const roleId = Number(req.user?.role) || 0;
+            if (roleId !== ADMIN_ROLE) {
+                return res.status(403).json({ message: "Only administrators can permanently delete accounts." });
+            }
+            const { id } = req.params;
+            const result = await this.salesService.hardDeleteSales(Number(id));
+            res.status(200).json({ message: "Sales account permanently deleted", data: result });
+        } catch (error) {
+            logger.error(error);
+            res.status(400).json({ message: (error as Error).message });
+        }
+    }
+
     /** DELETE /sales-dashboard/leave
      *  A sales person can close their OWN account.
      *  The record (and all registered companies) is preserved for admins.

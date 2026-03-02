@@ -217,4 +217,22 @@ export class UserService {
         }
 
     }
+
+    async updatePasswordById(userId: string, newPassword: string) {
+        if (!userId) throw new Error('User ID missing');
+        if (!newPassword) throw new Error('New password missing');
+
+        const user = await db.dashboard_user.findUnique({ where: { id: userId } });
+        if (!user) throw new Error('User not found');
+
+        const hashedPassword = hashSync(newPassword, genSaltSync(10));
+
+        await db.dashboard_user.update({
+            where: { id: userId },
+            data: {
+                password: hashedPassword,
+                updatedAt: new Date(),
+            }
+        });
+    }
 }

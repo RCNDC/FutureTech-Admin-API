@@ -96,16 +96,16 @@ export class SalesDashboardService {
     }
 
     /**
-     * ADMIN-ONLY hard soft-delete (keeps record + companies intact).
-     * The password is scrambled so the account can no longer log in,
-     * and isActive is set to false.
+     * ADMIN-ONLY soft-deactivate: sets isActive=false.
+     * Password is preserved so the account can be reactivated later.
+     * Profile and all registered companies remain intact.
      */
     async adminDeactivateSales(id: number) {
         return await db.sales_dashboard.update({
             where: { salesId: id },
             data: {
                 isActive: false,
-                password: "DEACTIVATED_" + Date.now(),
+                // Do NOT touch password — reactivation restores login with same credentials
             },
         });
     }
@@ -122,6 +122,31 @@ export class SalesDashboardService {
                 isActive: false,
                 password: "DEACTIVATED_" + Date.now(),
             },
+        });
+    }
+
+    /**
+     * ADMIN-ONLY: Re-activates a previously deactivated account.
+     * Password is untouched — the sales person logs in with their original credentials.
+     */
+    async reactivateSales(id: number) {
+        return await db.sales_dashboard.update({
+            where: { salesId: id },
+            data: {
+                isActive: true,
+                // Password is left intact so user can log back in immediately
+            },
+        });
+    }
+
+    /**
+     * ADMIN-ONLY hard delete: permanently removes the sales record.
+     * Companies registered by this sales person are NOT deleted
+     * (createdById becomes orphaned but data stays).
+     */
+    async hardDeleteSales(id: number) {
+        return await db.sales_dashboard.delete({
+            where: { salesId: id },
         });
     }
 }

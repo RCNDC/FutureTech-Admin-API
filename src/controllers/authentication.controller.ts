@@ -10,6 +10,36 @@ export class AuthenticationController {
         this.authService = new AuthService();
     }
 
+    private getErrorMessage(err: unknown): string {
+        return err instanceof Error ? err.message : 'Something went wrong. Please try again!';
+    }
+
+    private getStatusCode(message: string): number {
+        if (message === 'Email and password are required') {
+            return 400;
+        }
+        if (message === 'Credentials not provided') {
+            return 400;
+        }
+        if (message === 'Email already exists') {
+            return 409;
+        }
+        if (
+            message === 'Invalid email or password' ||
+            message === 'Unauthorized' ||
+            message === 'unauthorized'
+        ) {
+            return 401;
+        }
+        if (
+            message === 'User account is locked' ||
+            message === 'Your account has been deactivated. Please contact your administrator.'
+        ) {
+            return 403;
+        }
+        return 500;
+    }
+
     async signUp(req: Request<SignupDto>, response: Response) {
 
         try {
@@ -28,8 +58,16 @@ export class AuthenticationController {
                 maxAge: process.env.REFRESH_TOKEN_EXPIRY ? parseInt(process.env.REFRESH_TOKEN_EXPIRY) * 1000 : 7 * 24 * 60 * 60 * 1000 // Default to 7 days
             });
             response.status(201).json({ accessToken: tokens.accessToken });
-        } catch (err) {
-            response.status(500).json({ message: (err as Error).message });
+        } catch (err: unknown) {
+            const message = this.getErrorMessage(err);
+            const statusCode = this.getStatusCode(message);
+            logger.error('Signup endpoint failed', {
+                statusCode,
+                message,
+                email: req.body?.email,
+                stack: err instanceof Error ? err.stack : undefined
+            });
+            response.status(statusCode).json({ message });
         }
     }
     async logIn(req: Request<LoginDto>, response: Response) {
@@ -47,8 +85,16 @@ export class AuthenticationController {
                 maxAge: process.env.REFRESH_TOKEN_EXPIRY ? parseInt(process.env.REFRESH_TOKEN_EXPIRY) * 1000 : 7 * 24 * 60 * 60 * 1000 // Default to 7 days
             });
             response.status(201).json({ accessToken: tokens.accessToken });
-        } catch (err) {
-            response.status(500).json({ message: (err as Error).message });
+        } catch (err: unknown) {
+            const message = this.getErrorMessage(err);
+            const statusCode = this.getStatusCode(message);
+            logger.error('Login endpoint failed', {
+                statusCode,
+                message,
+                email: req.body?.email,
+                stack: err instanceof Error ? err.stack : undefined
+            });
+            response.status(statusCode).json({ message });
         }
     }
 

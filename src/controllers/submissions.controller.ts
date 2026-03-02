@@ -243,17 +243,48 @@ export class SubmissionsController {
     async getSubmissionStat(req: Request, res: Response) {
         const userId = req.user?.userId || "";
         const roleId = Number(req.user?.role) || 0;
+        const { startDate, endDate } = req.query as { startDate?: string; endDate?: string };
 
-        const totalNGOSubmission = await this.submissionService.getNGOSubmissions(roleId) || [];
-        const totalLocalCompanySubmission = await this.submissionService.getLocalCompanySubmissions(userId, roleId) || [];
-        const totalInternationCompanySubmission = await this.submissionService.getInternationalCompanySubmissions(userId, roleId) || [];
-        const totalStartupSubmission = await this.submissionService.getStartupSubmissions(roleId) || [];
-        const totalEmbassySubmission = await this.submissionService.getEmabassySubmissions(roleId) || [];
+        const filterByDate = (data: any[]) => {
+            if (!startDate && !endDate) return data;
+            return data.filter((d) => {
+                const date = new Date(d.registeredDate);
+                if (startDate && date < new Date(startDate)) return false;
+                if (endDate) {
+                    // Make endDate inclusive by extending to end of day
+                    const end = new Date(endDate);
+                    end.setHours(23, 59, 59, 999);
+                    if (date > end) return false;
+                }
+                return true;
+            });
+        };
+
+        const [rawNGO, rawLocal, rawIntl, rawStartup, rawEmbassy, rawEvent, rawConf] = await Promise.all([
+            this.submissionService.getNGOSubmissions(roleId),
+            this.submissionService.getLocalCompanySubmissions(userId, roleId),
+            this.submissionService.getInternationalCompanySubmissions(userId, roleId),
+            this.submissionService.getStartupSubmissions(roleId),
+            this.submissionService.getEmabassySubmissions(roleId),
+            this.submissionService.getEventAttendeeSubmissions(),
+            this.submissionService.getConferenceAttendeeSubmissions(),
+        ]);
+
+        const totalNGOSubmission = filterByDate(rawNGO || []);
+        const totalLocalCompanySubmission = filterByDate(rawLocal || []);
+        const totalInternationCompanySubmission = filterByDate(rawIntl || []);
+        const totalStartupSubmission = filterByDate(rawStartup || []);
+        const totalEmbassySubmission = filterByDate(rawEmbassy || []);
+        const totalEventAttendeeSubmission = filterByDate(rawEvent || []);
+        const totalConferenceAttendeeSubmission = filterByDate(rawConf || []);
+
         const ngoChange = calculateChange(totalNGOSubmission);
         const localCompanyChange = calculateChange(totalLocalCompanySubmission);
         const internationalCompanyChange = calculateChange(totalInternationCompanySubmission);
         const startupChange = calculateChange(totalStartupSubmission);
         const embassyChange = calculateChange(totalEmbassySubmission);
+        const eventAttendeeChange = calculateChange(totalEventAttendeeSubmission);
+        const conferenceAttendeeChange = calculateChange(totalConferenceAttendeeSubmission);
 
         res.status(200).json({
             message: 'fetched successfull', data: {
@@ -262,17 +293,38 @@ export class SubmissionsController {
                 'totalInternationCompanySubmission': roleId === 25 ? 0 : totalInternationCompanySubmission.length,
                 'totalStartupSubmission': totalStartupSubmission.length,
                 'totalEmbassySubmission': totalEmbassySubmission.length,
+                'totalEventAttendeeSubmission': totalEventAttendeeSubmission.length,
+                'totalConferenceAttendeeSubmission': totalConferenceAttendeeSubmission.length,
                 'ngoChange': ngoChange,
                 'internationCompanyChange': roleId === 25 ? 0 : internationalCompanyChange,
                 'localCompanyChange': roleId === 29 ? 0 : localCompanyChange,
                 'startupChange': startupChange,
                 'embassyChange': embassyChange,
-
+                'eventAttendeeChange': eventAttendeeChange,
+                'conferenceAttendeeChange': conferenceAttendeeChange
             }
         })
+    }
 
 
+    async getSubmissionChart(req: Request, res: Response) {
+        const userId = req.user?.userId || "";
+        const roleId = Number(req.user?.role) || 0;
+        const { type, startDate, endDate } = req.query as { type?: string; startDate?: string; endDate?: string };
 
+        const chartData = await this.submissionService.getChartData(
+            userId,
+            roleId,
+            type || 'participants',
+            startDate,
+            endDate
+        );
 
+        if (!chartData) {
+            return res.status(500).json({ message: 'Failed to fetch chart data' });
+        }
+
+        res.status(200).json({ message: 'fetched successfully', data: chartData });
     }
 }
+

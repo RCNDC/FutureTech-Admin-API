@@ -12,3 +12,17 @@ uploads/
 mail.png
 qrcodes
 test.sql
+
+# Untracked files
+*.zip
+*.txt
+conf147.json
+conference_keys*.json
+db_*.json
+embassy_keys.json
+event_keys.json
+fix-prisma.js
+kidus_meta.json
+prisma/sql/*.sql.txt
+tmp_*
+

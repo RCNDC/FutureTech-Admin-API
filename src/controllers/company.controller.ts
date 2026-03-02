@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import { CompanyService } from "../services/company.service";
 import logger from "../util/logger";
 
+const ADMIN_ROLE = 3;
+const LOCAL_SALES_ROLE = 25;
+const INT_SALES_ROLE = 29;
+
 export class CompanyController {
     private companyService = new CompanyService();
 
@@ -17,16 +21,40 @@ export class CompanyController {
                 return res.status(400).json({ message: "Company type ('local' or 'international') is required." });
             }
 
+            const roleId = Number(req.user?.role) || 0;
+            if (![ADMIN_ROLE, LOCAL_SALES_ROLE, INT_SALES_ROLE].includes(roleId)) {
+                return res.status(403).json({ message: "You are not allowed to create companies." });
+            }
+            if (roleId === LOCAL_SALES_ROLE && data.type !== "local") {
+                return res.status(403).json({ message: "Local sales representatives can only create local companies." });
+            }
+            if (roleId === INT_SALES_ROLE && data.type !== "international") {
+                return res.status(403).json({ message: "International sales representatives can only create international companies." });
+            }
+
             const creatorId = req.user?.userId || "";
             const company = await this.companyService.createCompany(data, creatorId);
             res.status(201).json({ message: "Company created successfully", data: company });
         } catch (error: any) {
             logger.error(`Failed to create company: ${error.message}`, { stack: error.stack, error });
-            res.status(500).json({
-                message: "Failed to create company",
-                error: error.message,
-                details: error.stack
-            });
+            const message = error instanceof Error ? error.message : "Failed to create company";
+            let statusCode = 500;
+            if (
+                message.includes("required") ||
+                message.includes("Invalid company type")
+            ) {
+                statusCode = 400;
+            } else if (
+                message.includes("already registered")
+            ) {
+                statusCode = 409;
+            } else if (
+                message.includes("can only create")
+            ) {
+                statusCode = 403;
+            }
+
+            res.status(statusCode).json({ message });
         }
     }
 

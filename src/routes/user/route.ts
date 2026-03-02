@@ -7,15 +7,19 @@ const userController = new UserController();
 
 const userRoutes = Router();
 
-userRoutes.post('/forgot-password', AuthAPIKey, (req:Request, res:Response)=>userController.forgotPassword(req, res));
-userRoutes.post('/reset-password/:token', AuthAPIKey, (req:Request, res:Response)=>userController.verifyResetToken(req, res));
-userRoutes.post('/change-password/:token', AuthAPIKey,  (req:Request, res:Response)=> userController.resetPassword(req, res));
-userRoutes.get('/me', [AuthAPIKey, AuthGuard], (req:Request, res:Response)=>userController.me(req, res));
+userRoutes.post('/forgot-password', AuthAPIKey, (req: Request, res: Response) => userController.forgotPassword(req, res));
+// API-key-only route: resets a user password without needing to be logged in
+userRoutes.post('/admin-reset-password', AuthAPIKey, (req: Request, res: Response) => userController.adminResetPassword(req, res));
+userRoutes.post('/reset-password/:token', AuthAPIKey, (req: Request, res: Response) => userController.verifyResetToken(req, res));
+userRoutes.post('/change-password/:token', AuthAPIKey, (req: Request, res: Response) => userController.resetPassword(req, res));
+userRoutes.get('/me', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => userController.me(req, res));
 
 userRoutes.get('/getAllUsers', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => userController.getAllUsers(req, res));
 userRoutes.post('/createUser', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => userController.createUser(req, res));
 userRoutes.delete('/delete/:id', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => userController.deleteUser(req, res));
 userRoutes.patch('/update/:id', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => userController.editUser(req, res));
+userRoutes.patch('/change-password/:id', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => userController.changePassword(req, res));
+
 
 // userRoutes.get('/getAllUsers', [AuthAPIKey, AuthGuard], (req: Request, res: Response) => userController.getAllUsers(req, res));
 
